@@ -26,7 +26,12 @@ Specialize on `pathname' to make NJSON better decode JSON files.
 Uses `decode-json-from-stream' by default."))
 
 (defgeneric decode (from)
-  (:method :around (from))
+  (:method ((from stream))
+    (decode-json-from-stream from))
+  (:method ((from pathname))
+    (decode-json-from-file from))
+  (:method ((from string))
+    (decode-json-from-string from))
   (:documentation "Decode OBJECT from JSON source FROM.
 FROM can be a string, stream, pathname, or byte array.
 
