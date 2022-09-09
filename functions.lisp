@@ -21,7 +21,7 @@ valid `sequence' ot `hash-table'."))
 OBJECT can be JSON array or object, which in Lisp translates to any
 valid `sequence' ot `hash-table'."))
 
-(defun get* (key-or-index object)
+(defun get** (key-or-index object)
   "Get the value at KEY-OR-INDEX in OBJECT.
 
 OBJECT can be JSON array or object, which in Lisp translates to any
@@ -30,7 +30,7 @@ valid `sequence' ot `hash-table'.
 For generic implementation, see `jget'."
   (jget key-or-index object))
 
-(defun (setf get*) (value key-or-index object)
+(defun (setf get**) (value key-or-index object)
   "Set the value at KEY-OR-INDEX in OBJECT.
 
 OBJECT can be JSON array or object, which in Lisp translates to any

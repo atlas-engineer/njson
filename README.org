@@ -96,14 +96,14 @@ nickname for NJSON to be a mere ~j:~, so that these helpers are just a
 couple of characters longer than the regular Lisp constructs. The
 helpers are:
 
-*** FUNCTION njson:jget (alias: njson:get*)
+*** FUNCTION njson:jget (alias: njson:get**)
 
 Gets the value from the JSON object/array indexed by a certain key
 
 #+begin_src lisp
-  (njson:get "key" (njson:decode "{\"key\": 5}"))
+  (njson:jget "key" (njson:decode "{\"key\": 5}"))
   ;; => 5
-  (njson:get 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  (njson:jget 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
   ;; => 5
 #+end_src
 
