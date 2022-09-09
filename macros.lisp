@@ -12,7 +12,7 @@ If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE."
   "JSON-aware version of `cl:if'.
 If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE.
 Alias for `jif'."
-  (jif ,test ,then ,else))
+  `(jif ,test ,then ,else))
 
 (defmacro jwhen (test &body body)
   "JSON-aware version of `cl:when'.
@@ -53,4 +53,4 @@ Alias for `jand'."
 (defmacro not* (arg)
   "JSON-aware version of `cl:not'.
 Alias for `jnot'."
-  (jnot ,arg))
+  `(jnot ,arg))
