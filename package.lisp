@@ -18,4 +18,21 @@
    ;; Macro helpers
    #:jif #:if* #:jwhen #:when*
    #:jor #:or* #:jand #:and* #:jnot #:not*)
-  (:documentation ""))
+  (:documentation "NJSON is a convenience library for JSON handling. Important functions/APIs:
+- `njson:encode' and `njson:decode' as universal (en|de)coding functions working
+  on strings, streams, and pathnames.
+- `njson:jget' (and `njson:get**') to get the value from decoded JSON
+  array/object.
+- `njson:jtruep' (and aliases) to check the non-falsity of a decoded
+  value.
+- `njson:jif', `njson:jwhen', `njson:jor', `njson:jand', and
+  `njson:jnot' as convenience macros for JSON non-falsity-based
+  control flow.
+
+Generics to implement:
+- `njson:encode-json-to-stream' and `njson:decode-json-from-stream' as the basic
+  methods to specialize for every backend.
+- `njson:encode-json-to-string' and `njson:encode-json-to-file', as more specific
+  methods to speed things up.
+- `njson:decode-json-from-string' and `njson:decode-json-from-file', as more
+  specific decoding methods."))
