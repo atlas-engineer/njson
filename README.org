@@ -1,0 +1,144 @@
+#+TITLE:njson
+
+*A JSON handling framework aiming for convenience and brevity.*
+
+NJSON aims to make it extremely convenient for you to decode and
+encode JSON data, in the minimum keystrokes/minutes possible.
+
+* COMMENT Getting started
+Clone the Git repository:
+#+begin_src sh
+  git clone --recursive https://github.com/atlas-engineer/njson ~/common-lisp/
+#+end_src
+
+Load NJSON in the REPL:
+#+begin_src lisp
+  ;; Show ASDF where NJSON is.
+  (asdf:load-asd #p"/path/to/checkout/njson.asd")
+  ;; Load it with ASDF.
+  (asdf:load-system :njson)
+  ;; Alternatively, load it with Quicklisp.
+  (ql:quickload :njson)
+  ;; NOTE: :NJSON system implicitly includes :NJSON/CL-JSON backend for
+  ;; your convenience. If you want other backend, load :NJSON/BACKEND.
+#+end_src
+
+And start parsing right away, be it from file:
+#+begin_src lisp
+  (njson:decode #p"/path/to/njson/checkout/tests/test.json")
+  ;; => (1 3.8 T NIL :UNDEFINED :NULL "foo" (1 2 3) ("bar" 8.3 T :NULL 1000000)
+  ;;     #<HASH-TABLE :TEST EQUAL :COUNT 1 {100EAB1383}>
+  ;;     #<HASH-TABLE :TEST EQUAL :COUNT 3 {100EAB16D3}>)
+
+#+end_src
+
+or from string:
+#+begin_src lisp
+  (njson:decode "[\"hello\", 5]")
+  ;; => ("hello", 5)
+#+end_src
+
+or other types. Default methods support:
+- pathnames,
+- strings,
+- streams.
+
+* What NJSON is not (and what it is, instead)
+
+** NJSON is not a JSON parsing library.
+
+It's one level higher: it's a convenience wrapper around your JSON
+parser of choice. NJSON is made in such a way so as to be usable with
+almost any JSON library out there. The default backend is CL-JSON,
+that proven itself extensible enough.
+
+- To make NJSON support your preferred JSON parser, you have to
+  specialize as little as two methods: ~decode-json-from-stream~ and
+  ~encode-json-to-stream~. If you care about correctness or proper type
+  dispatching, you may also define ~(en|de)code-json-(to|from)-string~ and
+  ~(en|de)code-json-(to|from)-file~.
+
+** NJSON is not propagating unnecessary dependencies on you.
+
+The dependencies of the core are pretty lightweight and are likely to
+be the dependencies of your project already:
+- Alexandria.
+- Flexi Streams.
+- Serapeum.
+
+Every other dependency (including CL-JSON) is optional and depends on
+which backend you want to use for parsing.
+
+** NJSON is not the fastest JSON handling solution out there.
+
+Plug-n-play usability and type variety are much higher of a priority
+than the performance. The types NJSON returns from its methods (and
+that your own methods extending NJSON should expect/return) are:
+
+- Lisp ~number~-s for JSON numbers.
+- Lisp strings for JSON strings.
+- ~:null~ for JSON ~null~.
+- ~t~ for ~true~ and ~nil~ for ~false~.
+- ~:undefined~ for ~undefined~.
+- Lists for JSON arrays.
+- Hash-tables for JSON objects.
+
+With this basic (yet disjoint) set of types, you can easily ~typecase~
+over NJSON output and make informed decisions about the JSON you have.
+
+** NJSON is not minimalist.
+
+NJSON has strict requirements on the returned data, but this
+strictness enables a rich set of JSON-handling primitives/helpers. You
+can safely import those helpers into your code if you are concerned
+with convenient JSON handling; or you can define a package local
+nickname for NJSON to be a mere ~j:~, so that these helpers are just a
+couple of characters longer than the regular Lisp constructs. The
+helpers are:
+
+*** FUNCTION njson:jget (alias: njson:get*)
+
+Gets the value from the JSON object/array indexed by a certain key
+
+#+begin_src lisp
+  (njson:get "key" (njson:decode "{\"key\": 5}"))
+  ;; => 5
+  (njson:get 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  ;; => 5
+#+end_src
+
+*** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
+
+Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.
+
+All the macros below utilize it, so, if you want to change the behavior of those, specialize this function.
+*** MACRO njson:jwhen (alias: njson:when*)
+
+A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
+
+#+begin_src lisp
+  (njson:jwhen (njson:decode "null")
+    "This is never returned.")
+  ;; nil
+  (njson:jwhen (njson:decode "5")
+    "This is always returned.")
+  ;; "This is always returned"
+#+end_src
+
+*** MACRO njson:if (alias: njson:if*)
+
+A regular Lisp ~if~ aware of JSON truths and lies.
+
+#+begin_src lisp
+  (njson:jif (njson:decode "5")
+             "This is always returned."
+             "This is never returned.")
+  ;; "This is always returned"
+#+end_src
+
+*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson:or*, njson:and*, njson:not*)
+
+Regular Lisp logic operators, with awareness of JSON values.
+
+* Roadmap
+- [ ] Make an in-depth guide on supporting other backends.
