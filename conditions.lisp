@@ -1,6 +1,8 @@
 ;;;; SPDX-FileCopyrightText: Atlas Engineer LLC
 ;;;; SPDX-License-Identifier: BSD-3 Clause
 
+(in-package #:njson)
+
 (define-condition decode-json-from-stream-not-implemented (error) ()
   (:report "DECODE-JSON-FROM-STREAM is not specialized.
 You need to specialize it to use NJSON. Example:

@@ -1,6 +1,8 @@
 ;;;; SPDX-FileCopyrightText: Atlas Engineer LLC
 ;;;; SPDX-License-Identifier: BSD-3 Clause
 
+(in-package #:njson)
+
 (defmacro jif (test then &optional (else nil))
   "JSON-aware version of `cl:if'.
 If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE."

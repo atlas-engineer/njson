@@ -1,6 +1,8 @@
 ;;;; SPDX-FileCopyrightText: Atlas Engineer LLC
 ;;;; SPDX-License-Identifier: BSD-3 Clause
 
+(in-package #:njson)
+
 (defgeneric jget (key-or-index object)
   (:method ((index integer) (object sequence))
     (elt object index))
