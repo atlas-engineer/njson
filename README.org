@@ -107,6 +107,19 @@ Gets the value from the JSON object/array indexed by a certain key
   ;; => 5
 #+end_src
 
+*** FUNCTION njson:jrem (alias: njson:rem*)
+
+Removes the value from the JSON object/array indexed by a certain key
+
+#+begin_src lisp
+  (defvar data (njson:decode "{\"key\": 5}"))
+  data
+  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 1 {1007F2F1A3}>
+  (njson:jrem "key" data)
+  data
+  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 0 {1007F2F1A3}>
+#+end_src
+
 *** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
 
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.

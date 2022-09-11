@@ -63,6 +63,25 @@ For generic implementation and getails, see `jget'."
 For generic implementation and getails, see `jget'."
   (setf (jget key-or-index object) value))
 
+(defgeneric jrem (key-or-index object)
+  (:method ((keys sequence) (object t))
+    (jrem (elt keys (1- (length keys)))
+          (jget (subseq keys 0 (1- (length keys))) object)))
+  (:method ((index integer) (object sequence))
+    (setf (subseq object index)
+          (subseq object (1+ index))))
+  (:method ((key string) (object hash-table))
+    (remhash key object))
+  (:documentation "Remove the value at KEY-OR-INDEX of OBJECT.
+
+The arguments are the same as in `jget'."))
+
+(defun rem* (key-or-index object)
+  "Remove the value at KEY-OR-INDEX of OBJECT.
+
+For generic implementation and getails, see `jrem'."
+  (jrem key-or-index object))
+
 (defgeneric jtruep (object)
   (:method (object)
     t)
