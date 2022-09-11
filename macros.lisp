@@ -10,7 +10,7 @@ If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE."
        ,then
        ,else))
 
-(defmacro if* (test then &optional (else nil))
+(defmacro if_ (test then &optional (else nil))
   "JSON-aware version of `cl:if'.
 If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE.
 Alias for `jif'."
@@ -22,7 +22,7 @@ If TEST is `jtruep' evaluate BODY."
   `(jif ,test
        (progn ,@body)))
 
-(defmacro when* (test &body body)
+(defmacro when_ (test &body body)
   "JSON-aware version of `cl:when'.
 If TEST is `jtruep' evaluate BODY.
 Alias for `jwhen'."
@@ -33,7 +33,7 @@ Alias for `jwhen'."
   `(or ,@(loop for arg in args
                collecting `(jwhen ,arg ,arg))))
 
-(defmacro or* (&rest args)
+(defmacro or_ (&rest args)
   "JSON-aware version of `cl:or'.
 Alias for `jor'."
   `(or ,@args))
@@ -43,7 +43,7 @@ Alias for `jor'."
   `(and ,@(loop for arg in args
                 collecting `(jwhen ,arg ,arg))))
 
-(defmacro and* (&rest args)
+(defmacro and_ (&rest args)
   "JSON-aware version of `cl:and'.
 Alias for `jand'."
   `(and ,@args))
@@ -52,7 +52,7 @@ Alias for `jand'."
   "JSON-aware version of `cl:not'."
   `(not (jtrue ,arg)))
 
-(defmacro not* (arg)
+(defmacro not_ (arg)
   "JSON-aware version of `cl:not'.
 Alias for `jnot'."
   `(jnot ,arg))

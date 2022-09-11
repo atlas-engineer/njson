@@ -96,7 +96,7 @@ nickname for NJSON to be a mere ~j:~, so that these helpers are just a
 couple of characters longer than the regular Lisp constructs. The
 helpers are:
 
-*** FUNCTION njson:jget (alias: njson:get**)
+*** FUNCTION njson:jget (alias: njson:get_)
 
 Gets the value from the JSON object/array indexed by a certain key
 
@@ -107,7 +107,7 @@ Gets the value from the JSON object/array indexed by a certain key
   ;; => 5
 #+end_src
 
-*** FUNCTION njson:jrem (alias: njson:rem*)
+*** FUNCTION njson:jrem (alias: njson:rem_)
 
 Removes the value from the JSON object/array indexed by a certain key
 
@@ -125,7 +125,7 @@ Removes the value from the JSON object/array indexed by a certain key
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.
 
 All the macros below utilize it, so, if you want to change the behavior of those, specialize this function.
-*** MACRO njson:jwhen (alias: njson:when*)
+*** MACRO njson:jwhen (alias: njson:when_)
 
 A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
 
@@ -138,7 +138,7 @@ A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:if (alias: njson:if*)
+*** MACRO njson:if (alias: njson:if_)
 
 A regular Lisp ~if~ aware of JSON truths and lies.
 
@@ -149,7 +149,7 @@ A regular Lisp ~if~ aware of JSON truths and lies.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson:or*, njson:and*, njson:not*)
+*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson:or_, njson:and_, njson:not_)
 
 Regular Lisp logic operators, with awareness of JSON values.
 

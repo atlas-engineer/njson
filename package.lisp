@@ -13,21 +13,21 @@
    #:decode-json-from-stream #:decode-json-from-string #:decode-json-from-file
    #:encode-json-to-stream #:encode-json-to-string #:encode-json-to-file
    ;; Helpers
-   #:jget #:get** #:jrem #:rem*
+   #:jget #:get_ #:jrem #:rem_
    #:jtruep #:jtrue-p #:jtrue? #:truep #:true-p #:true?
    ;; Macro helpers
-   #:jif #:if* #:jwhen #:when*
-   #:jor #:or* #:jand #:and* #:jnot #:not*)
+   #:jif #:if_ #:jwhen #:when_
+   #:jor #:or_ #:jand #:and_ #:jnot #:not_)
   (:documentation "NJSON is a convenience library for JSON handling. Important functions/APIs:
 - `njson:encode' and `njson:decode' as universal (en|de)coding functions working
   on strings, streams, and pathnames.
-- `njson:jget' (and `njson:get**') to get the value from decoded JSON
-  array/object.
+- `njson:jget' (and `njson:get_' alias) to get the value from decoded
+  and arbitrarily nested JSON array/object.
 - `njson:jtruep' (and aliases) to check the non-falsity of a decoded
   value.
 - `njson:jif', `njson:jwhen', `njson:jor', `njson:jand', and
-  `njson:jnot' as convenience macros for JSON non-falsity-based
-  control flow.
+  `njson:jnot' (and aliases) as convenience macros for JSON
+  non-falsity-based control flow.
 
 Generics to implement:
 - `njson:encode-json-to-stream' and `njson:decode-json-from-stream' as the basic

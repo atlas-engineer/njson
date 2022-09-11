@@ -50,7 +50,7 @@ KEY-OR-INDEX can be
 OBJECT can be JSON array or object, which in Lisp translates to any
 valid `sequence' ot `hash-table'."))
 
-(defun get** (key-or-index object)
+(defun get_ (key-or-index object)
   "Get the value at KEY-OR-INDEX in OBJECT.
 
 OBJECT can be JSON array or object, which in Lisp translates to any
@@ -59,7 +59,7 @@ valid `sequence' ot `hash-table'.
 For generic implementation and getails, see `jget'."
   (jget key-or-index object))
 
-(defun (setf get**) (value key-or-index object)
+(defun (setf get_) (value key-or-index object)
   "Set the value at KEY-OR-INDEX in OBJECT.
 
 For generic implementation and getails, see `jget'."
@@ -78,7 +78,7 @@ For generic implementation and getails, see `jget'."
 
 The arguments are the same as in `jget'."))
 
-(defun rem* (key-or-index object)
+(defun rem_ (key-or-index object)
   "Remove the value at KEY-OR-INDEX of OBJECT.
 
 For generic implementation and getails, see `jrem'."
