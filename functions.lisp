@@ -5,8 +5,10 @@
 
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
-    (reduce (lambda (data key) (jget key data))
-            keys :initial-value object))
+    (if (= 1 (length keys))
+        (jget (elt keys 0) object)
+        (jget (subseq keys 1)
+              (jget (elt keys 0) object))))
   (:method ((index integer) (object sequence))
     (elt object index))
   (:method ((key string) (object hash-table))
