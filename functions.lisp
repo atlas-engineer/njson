@@ -90,8 +90,10 @@ For generic implementation and getails, see `jrem'."
   ;; TODO: A method on numbers, checking for zero?
   (:method ((object sequence))
     (not (uiop:emptyp object)))
+  (:method ((object hash-table))
+    (plusp (hash-table-count object)))
   (:method ((object symbol))
-    (and (not (member object (list nil :null)))))
+    (not (member object (list nil :null))))
   (:documentation "Test OBJECT for truthiness in JSON terms."))
 
 (macrolet ((defalias (name)
