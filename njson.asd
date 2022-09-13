@@ -6,7 +6,7 @@
   :author "Atlas Engineer LLC"
   :homepage "https://github.com/atlas-engineer/njson"
   :license  "BSD-3 Clause"
-  :version "0.0.0"
+  :version "0.1.0"
   :depends-on (#:njson/cl-json)
   :in-order-to ((test-op (test-op "njson/tests")))
   :serial t)
