@@ -43,6 +43,10 @@ valid `sequence' ot `hash-table'."))
     (setf (elt object index) value))
   (:method (value (key string) (object hash-table))
     (setf (gethash key object) value))
+  (:method (value (index string) (object sequence))
+    (error 'setf-jget-invalid-key :key index :object object))
+  (:method (value (key integer) (object hash-table))
+    (error 'setf-jget-invalid-key :key key :object object))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be
@@ -78,6 +82,10 @@ For generic implementation and getails, see `jget'."
           (subseq object (1+ index))))
   (:method ((key string) (object hash-table))
     (remhash key object))
+  (:method ((index string) (object sequence))
+    (error 'jrem-invalid-key :key index :object object))
+  (:method ((key integer) (object hash-table))
+    (error 'jrem-invalid-key :key key :object object))
   (:documentation "Remove the value at KEY-OR-INDEX of OBJECT.
 
 The arguments are the same as in `jget'."))
