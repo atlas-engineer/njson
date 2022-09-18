@@ -13,6 +13,10 @@
     (elt object index))
   (:method ((key string) (object hash-table))
     (gethash key object))
+  (:method ((index string) (object sequence))
+    (error 'jget-invalid-key :key index :object object))
+  (:method ((key integer) (object hash-table))
+    (error 'jget-invalid-key :key key :object object))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be

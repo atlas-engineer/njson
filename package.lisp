@@ -7,6 +7,7 @@
    ;; Conditions
    #:decode-json-from-stream-not-implemented
    #:encode-json-to-stream-not-implemented
+   #:jget-invalid-key
    ;; Main generics
    #:decode #:encode
    ;; Generics to implement for backends.
