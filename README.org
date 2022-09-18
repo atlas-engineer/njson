@@ -5,7 +5,7 @@
 NJSON aims to make it extremely convenient for you to decode and
 encode JSON data, in the minimum keystrokes/minutes possible.
 
-* COMMENT Getting started
+* Getting started
 Clone the Git repository:
 #+begin_src sh
   git clone --recursive https://github.com/atlas-engineer/njson ~/common-lisp/
