@@ -25,6 +25,8 @@ KEY-OR-INDEX can be
 - or a sequence of integers and strings (to index the nested
   structures).
 
+Throws `jget-invalid-key' if using the wrong index.
+
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
 you can use
@@ -54,6 +56,8 @@ KEY-OR-INDEX can be
 - a string (for object keying),
 - or a sequence of integers and strings (to modify the nested
   structures).
+
+Throws `setf-jget-invalid-key' if using the wrong index type.
 
 OBJECT can be JSON array or object, which in Lisp translates to any
 valid `sequence' ot `hash-table'."))
@@ -88,7 +92,9 @@ For generic implementation and getails, see `jget'."
     (error 'jrem-invalid-key :key key :object object))
   (:documentation "Remove the value at KEY-OR-INDEX of OBJECT.
 
-The arguments are the same as in `jget'."))
+The arguments are the same as in `jget'.
+
+Throws `jrem-invalid-key' if using the wrong type index."))
 
 (defun rem_ (key-or-index object)
   "Remove the value at KEY-OR-INDEX of OBJECT.
