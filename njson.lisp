@@ -3,35 +3,35 @@
 
 (in-package #:njson)
 
-(defgeneric decode-json-from-stream (stream)
+(defgeneric decode-from-stream (stream)
   (:method (stream)
-    (signal 'decode-json-from-stream-not-implemented))
+    (signal 'decode-from-stream-not-implemented))
   (:documentation "Decode JSON from STREAM.
 Specialize on `stream' to make NJSON decode JSON."))
 
 (defgeneric decode-json-from-string (string)
   (:method (string)
     (with-input-from-string (stream string)
-      (decode-json-from-stream stream)))
+      (decode-from-stream stream)))
   (:documentation "Decode JSON from STRING.
 Specialize on `string' to make NJSON better decode JSON strings.
-Uses `decode-json-from-stream' by default."))
+Uses `decode-from-stream' by default."))
 
 (defgeneric decode-json-from-file (file)
   (:method (file)
     (with-open-file (stream file :direction :input)
-      (decode-json-from-stream stream)))
+      (decode-from-stream stream)))
   (:documentation "Decode JSON from FILE.
 Specialize on `pathname' to make NJSON better decode JSON files.
-Uses `decode-json-from-stream' by default."))
+Uses `decode-from-stream' by default."))
 
 (defgeneric decode (from)
   (:method ((from stream))
-    (decode-json-from-stream from))
+    (decode-from-stream from))
   (:method ((from pathname))
-    (decode-json-from-file from))
+    (decode-from-file from))
   (:method ((from string))
-    (decode-json-from-string from))
+    (decode-from-string from))
   (:documentation "Decode OBJECT from JSON source FROM.
 FROM can be a string, stream, pathname, or byte array.
 
@@ -43,38 +43,38 @@ Decodes:
 - true as t,
 - objects as hash-tables."))
 
-(defgeneric encode-json-to-stream (object stream)
+(defgeneric encode-to-stream (object stream)
   (:method (object stream)
-    (signal 'encode-json-to-stream-not-implemented))
+    (signal 'encode-to-stream-not-implemented))
   (:documentation "Encode OBJECT to STREAM as JSON.
 Specialize on `stream' (and, optionally, OBJECT types) to make NJSON encode JSON."))
 
-(defgeneric encode-json-to-string (object)
+(defgeneric encode-to-string (object)
   (:method (object)
     (with-output-to-string (stream)
-      (encode-json-to-stream object stream)
+      (encode-to-stream object stream)
       (get-output-stream-string stream)))
   (:documentation "Encode OBJECT to JSON string.
 Specialize on `string' (and, optionally, OBJECT types) to make NJSON better encode JSON to strings.
-Uses `encode-json-to-stream' by default."))
+Uses `encode-to-stream' by default."))
 
-(defgeneric encode-json-to-file (object file)
+(defgeneric encode-to-file (object file)
   (:method (object file)
     (with-open-file (stream file)
-      (encode-json-to-stream object stream)))
+      (encode-to-stream object stream)))
   (:documentation "Encode OBJECT to FILE.
 Specialize on `pathname' (and, optionally, OBJECT types) to make NJSON better encode JSON to files.
-Uses `encode-json-to-stream' by default."))
+Uses `encode-to-stream' by default."))
 
 (defgeneric encode (object &optional to)
   (:method :around (object &optional to)
     (typecase to
-      (null (encode-json-to-string object))
-      (pathname (encode-json-to-file object to))
+      (null (encode-to-string object))
+      (pathname (encode-to-file object to))
       (stream (call-next-method object to))
       ((eql t) (call-next-method object *standard-output*))))
   (:method (object &optional to)
-    (encode-json-to-stream object to))
+    (encode-to-stream object to))
   (:documentation "Encode OBJECT to JSON output spec TO.
 TO can be:
 - T, in which case `*standard-output*' is used as encoding stream.

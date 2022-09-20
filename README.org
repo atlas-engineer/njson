@@ -38,7 +38,7 @@ or from string:
   ;; => ("hello", 5)
 #+end_src
 
-or other types. Default methods support:
+or other specializeable types. Default methods support:
 - pathnames,
 - strings,
 - streams.
@@ -53,21 +53,17 @@ almost any JSON library out there. The default backend is CL-JSON,
 that proven itself extensible enough.
 
 - To make NJSON support your preferred JSON parser, you have to
-  specialize as little as two methods: ~decode-json-from-stream~ and
-  ~encode-json-to-stream~. If you care about correctness or proper type
-  dispatching, you may also define ~(en|de)code-json-(to|from)-string~ and
-  ~(en|de)code-json-(to|from)-file~.
+  specialize as little as two methods: ~decode-from-stream~ and
+  ~encode-to-stream~. If you care about correctness or proper type
+  dispatching, you may also define ~(en|de)code-(to|from)-string~ and
+  ~(en|de)code-(to|from)-file~.
 
 ** NJSON is not propagating unnecessary dependencies on you.
 
-The dependencies of the core are pretty lightweight and are likely to
-be the dependencies of your project already:
-- Alexandria.
-- Flexi Streams.
-- Serapeum.
+The core has no dependencies due to specifying only the generics to implement.
 
-Every other dependency (including CL-JSON) is optional and depends on
-which backend you want to use for parsing.
+Every other dependency (CL-JSON in case of ~njson/cl-json~ backend) is
+optional and depends on which backend you want to use for parsing.
 
 ** NJSON is not the fastest JSON handling solution out there.
 
@@ -84,7 +80,10 @@ that your own methods extending NJSON should expect/return) are:
 - Hash-tables for JSON objects.
 
 With this basic (yet disjoint) set of types, you can easily ~typecase~
-over NJSON output and make informed decisions about the JSON you have.
+over NJSON output and make informed decisions about the JSON you
+have. Even if it's some couple of CPU work milliseconds slower than
+handling raw lists. It's faster in human work seconds, which are much
+more valuable.
 
 ** NJSON is not minimalist.
 

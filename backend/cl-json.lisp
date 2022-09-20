@@ -36,27 +36,27 @@ Objects are transformed to the hash-tables instead.")
          (json:*end-of-object-handler* #'json-object-get))
      ,@body))
 
-(defmethod decode-json-from-stream ((stream stream))
+(defmethod decode-from-stream ((stream stream))
   (with-cl-json-settings
-      (cl-json:decode-json stream)))
+    (cl-json:decode-json stream)))
 
-(defmethod decode-json-from-string ((string string))
+(defmethod decode-from-string ((string string))
   (with-cl-json-settings
-      (cl-json:decode-json-from-string string)))
+    (cl-json:decode-json-from-string string)))
 
-(defmethod decode-json-from-file ((file pathname))
+(defmethod decode-from-file ((file pathname))
   (with-cl-json-settings
-      (cl-json:decode-json-from-source file)))
+    (cl-json:decode-json-from-source file)))
 
-(defmethod encode-json-to-stream ((object t) (stream stream))
+(defmethod encode-to-stream ((object t) (stream stream))
   (with-cl-json-settings
-      (cl-json:encode-json object stream)))
+    (cl-json:encode-json object stream)))
 
-(defmethod encode-json-to-string ((object t))
+(defmethod encode-to-string ((object t))
   (with-cl-json-settings
-      (cl-json:encode-json-to-string object)))
+    (cl-json:encode-json-to-string object)))
 
-;; NOTE: `encode-json-to-file' is not specialized, because CL-JSON
-;; doesn't have a specialized function for that. We rather rely on the
-;; default `encode-json-to-file' method of NJSON that opens a stream
-;; from file and uses `encode-json-to-stream' with this stream.
+;; NOTE: `encode-to-file' is not specialized, because CL-JSON doesn't
+;; have a specialized function for that. We rather rely on the default
+;; `encode-to-file' method of NJSON that opens a stream from file and
+;; uses `encode-to-stream' with this stream.
