@@ -16,6 +16,12 @@
   (assert-equal "foo32348hjvn" (j:decode "\"foo32348hjvn\""))
   (assert-equal "" (j:decode "\"\"")))
 
+(define-test tricky-values ()
+  (assert-typep 'hash-table (j:decode "{}"))
+  (assert-eql 0 (hash-table-count (j:decode "{}")))
+  (assert-typep 'sequence (j:decode "[]"))
+  (assert-equalp '(nil) (j:decode "[false]")))
+
 (define-test from-file ()
   (destructuring-bind (simple-1 float-3.8 true false undefined null
                        string-foo array-123 array-of-everything
