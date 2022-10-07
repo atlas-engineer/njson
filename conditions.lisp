@@ -53,6 +53,13 @@ Are you sure you're modifying the right thing?~]"
                      (type-num (object condition)) (encode (object condition))
                      (value condition) (key condition) (type-num (object condition))))))
 
+(define-condition jget-non-indexable ()
+  ((value :initarg :value
+          :accessor value))
+  (:report (lambda (condition stream)
+             (format stream "Non-indexable ~a."
+                     (encode (object condition))))))
+
 (define-condition jrem-invalid-key (invalid-key) ()
   (:report (lambda (condition stream)
              (format stream "Cannot remove a value from JSON ~[object~;array~;value~] ~a using key ~s.
