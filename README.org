@@ -43,6 +43,15 @@ or other specializeable types. Default methods support:
 - strings,
 - streams.
 
+** Running tests
+Given JSON backend-agnostic nature, you should first load a backend to test the value conversion. For example, to test NJSON with CL-JSON, you can run:
+#+begin_src lisp
+  (asdf:load-system :njson/cl-json)
+  (asdf:test-system :njson)
+#+end_src
+
+You can use this to test new backends too.
+
 * What NJSON is not (and what it is, instead)
 
 ** NJSON is not a JSON parsing library.
