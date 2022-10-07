@@ -11,8 +11,8 @@
    ;; Main generics
    #:decode #:encode
    ;; Generics to implement for backends.
-   #:decode-json-from-stream #:decode-json-from-string #:decode-json-from-file
-   #:encode-json-to-stream #:encode-json-to-string #:encode-json-to-file
+   #:decode-from-stream #:decode-from-string #:decode-from-file
+   #:encode-to-stream #:encode-to-string #:encode-to-file
    ;; Helpers
    #:jget #:get_ #:jrem #:rem_
    #:jtruep #:jtrue-p #:jtrue? #:truep #:true-p #:true?

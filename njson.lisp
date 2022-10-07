@@ -9,7 +9,7 @@
   (:documentation "Decode JSON from STREAM.
 Specialize on `stream' to make NJSON decode JSON."))
 
-(defgeneric decode-json-from-string (string)
+(defgeneric decode-from-string (string)
   (:method (string)
     (with-input-from-string (stream string)
       (decode-from-stream stream)))
@@ -17,7 +17,7 @@ Specialize on `stream' to make NJSON decode JSON."))
 Specialize on `string' to make NJSON better decode JSON strings.
 Uses `decode-from-stream' by default."))
 
-(defgeneric decode-json-from-file (file)
+(defgeneric decode-from-file (file)
   (:method (file)
     (with-open-file (stream file :direction :input)
       (decode-from-stream stream)))
