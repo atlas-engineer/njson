@@ -29,7 +29,7 @@
     (assert-eq :null null)
     (assert-equal "foo" string-foo)
     (assert-equalp '(1 2 3) array-123)
-    (assert-equalp '("bar" 8.3 t :null 100000) array-of-everything)
+    (assert-equalp '("bar" 8.3 t :null 1000000) array-of-everything)
     (assert-typep 'hash-table object-quux-1883)
     (assert-eql 1883 (j:jget "quux" object-quux-1883))
     (assert-typep 'hash-table object-of-everything)
