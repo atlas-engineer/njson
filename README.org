@@ -69,7 +69,8 @@ that proven itself extensible enough.
 
 ** NJSON is not propagating unnecessary dependencies on you.
 
-The core has no dependencies due to specifying only the generics to implement.
+The core (~njson~ ASDF system) has no dependencies due to specifying
+only the generics to implement.
 
 Every other dependency (CL-JSON in case of ~njson/cl-json~ backend) is
 optional and depends on which backend you want to use for parsing.
