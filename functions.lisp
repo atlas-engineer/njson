@@ -14,11 +14,11 @@
   (:method ((key string) (object hash-table))
     (gethash key object))
   (:method (key (object string))
-    (error 'jget-non-indexable :value object))
+    (error 'non-indexable :value object))
   (:method ((index string) (object sequence))
-    (error 'jget-invalid-key :key index :object object))
+    (error 'invalid-key :key index :object object))
   (:method ((key integer) (object hash-table))
-    (error 'jget-invalid-key :key key :object object))
+    (error 'invalid-key :key key :object object))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be
@@ -27,7 +27,9 @@ KEY-OR-INDEX can be
 - or a sequence of integers and strings (to index the nested
   structures).
 
-Throws `jget-invalid-key' if using the wrong index.
+Throws `invalid-key' if using the wrong index type.
+Throws `non-indexable' when trying to index something other than JSON
+arrays or objects.
 
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
@@ -48,11 +50,11 @@ valid `sequence' ot `hash-table'."))
   (:method (value (key string) (object hash-table))
     (setf (gethash key object) value))
   (:method (value key (object string))
-    (error 'jget-non-indexable :value object))
+    (error 'non-indexable :value object))
   (:method (value (index string) (object sequence))
-    (error 'setf-jget-invalid-key :key index :object object))
+    (error 'invalid-key :key index :object object))
   (:method (value (key integer) (object hash-table))
-    (error 'setf-jget-invalid-key :key key :object object))
+    (error 'invalid-key :key key :object object))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be
@@ -61,7 +63,9 @@ KEY-OR-INDEX can be
 - or a sequence of integers and strings (to modify the nested
   structures).
 
-Throws `setf-jget-invalid-key' if using the wrong index type.
+Throws `invalid-key' if using the wrong index type.
+Throws `non-indexable' when trying to index something other than JSON
+arrays or objects.
 
 OBJECT can be JSON array or object, which in Lisp translates to any
 valid `sequence' ot `hash-table'."))
@@ -90,15 +94,19 @@ For generic implementation and getails, see `jget'."
           (subseq object (1+ index))))
   (:method ((key string) (object hash-table))
     (remhash key object))
+  (:method (value key (object string))
+    (error 'non-indexable :value object))
   (:method ((index string) (object sequence))
-    (error 'jrem-invalid-key :key index :object object))
+    (error 'invalid-key :key index :object object))
   (:method ((key integer) (object hash-table))
-    (error 'jrem-invalid-key :key key :object object))
+    (error 'invalid-key :key key :object object))
   (:documentation "Remove the value at KEY-OR-INDEX of OBJECT.
 
 The arguments are the same as in `jget'.
 
-Throws `jrem-invalid-key' if using the wrong type index."))
+Throws `invalid-key' if using the wrong index type.
+Throws `non-indexable' when trying to index something other than JSON
+arrays or objects."))
 
 (defun rem_ (key-or-index object)
   "Remove the value at KEY-OR-INDEX of OBJECT.
