@@ -116,6 +116,17 @@ Gets the value from the JSON object/array indexed by a certain key
   ;; => 5
 #+end_src
 
+*** FUNCTION njson:jhas (alias: njson:has_)
+
+Checks the presence of the value under KEY-OR-INDEX in OBJECT.
+
+#+begin_src lisp
+  (njson:jhas "key" (njson:decode "{\"key\": 5}"))
+  ;; => T
+  (njson:jget 8 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  ;; => NIL
+#+end_src
+
 *** FUNCTION njson:jrem (alias: njson:rem_)
 
 Removes the value from the JSON object/array indexed by a certain key

@@ -3,6 +3,34 @@
 
 (in-package #:njson)
 
+(defgeneric jhas (key-or-index object)
+  (:method ((keys sequence) (object t))
+    (jhas (elt keys (1- (length keys)))
+          (jget (subseq keys 0 (1- (length keys))) object)))
+  (:method ((index integer) (object sequence))
+    (<= 0 index (1- (length object))))
+  (:method ((key string) (object hash-table))
+    (nth-value 1 (gethash key object)))
+  (:method (key (object string))
+    (error 'non-indexable :value object))
+  (:method ((index string) (object sequence))
+    (error 'invalid-key :key index :object object))
+  (:method ((key integer) (object hash-table))
+    (error 'invalid-key :key key :object object))
+  (:documentation "Check the presence of the value under KEY-OR-INDEX in OBJECT.
+
+The arguments are the same as in `jget'.
+
+Throws `invalid-key' if using the wrong index type.
+Throws `non-indexable' when trying to index something other than JSON
+arrays or objects."))
+
+(defun has_ (key-or-index object)
+  "Check the presence of the value under KEY-OR-INDEX in OBJECT.
+
+For generic implementation and getails, see `jhas'."
+  (jhas key-or-index object))
+
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
     (if (= 1 (length keys))

@@ -22,6 +22,8 @@
   (assert-typep 'sequence (j:decode "[]"))
   (assert-equalp '(nil) (j:decode "[false]")))
 
+;;; TODO: jget, jrem, jhas tests.
+
 (define-test from-file ()
   (destructuring-bind (simple-1 float-3.8 true false undefined null
                        string-foo array-123 array-of-everything
