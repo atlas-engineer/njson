@@ -129,6 +129,17 @@ Removes the value from the JSON object/array indexed by a certain key
   ;; => #<HASH-TABLE :TEST EQUAL :COUNT 0 {1007F2F1A3}>
 #+end_src
 
+*** FUNCTION njson:jcopy (alias: njson:copy_)
+
+Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object.
+
+#+begin_src lisp
+  (njson:jget "key" (njson:decode "{\"key\": 5}"))
+  ;; => 5
+  (njson:jget 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  ;; => 5
+#+end_src
+
 *** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
 
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.

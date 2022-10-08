@@ -43,3 +43,17 @@
     (assert-equalp '(1 2 "hey") (j:jget "bar" object-of-everything))
     (assert-typep 'hash-table (j:jget "quux" object-of-everything))
     (assert-eql 1 (j:jget "one" (j:jget "quux" object-of-everything)))))
+
+(define-test jcopy ()
+  (let* ((list '(1 2 3 "hello")))
+    (assert-eql 8 (j:jcopy 8))
+    (assert-eql 1.3 (j:jcopy 1.3))
+    (assert-eq :null (j:jcopy :null))
+    (assert-eq :undefined (j:jcopy :undefined))
+    (assert-error 'error (j:jcopy :whatever))
+    (assert-eq t (j:jcopy t))
+    (assert-false (j:jcopy nil))
+    (assert-equal "hello there" (j:jcopy "hello there"))
+    ;; TODO: hash-tables
+    (assert-false (eq list (j:jcopy list)))
+    (assert-equal list (j:jcopy list))))

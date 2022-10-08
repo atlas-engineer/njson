@@ -114,6 +114,29 @@ arrays or objects."))
 For generic implementation and getails, see `jrem'."
   (jrem key-or-index object))
 
+(defgeneric jcopy (object)
+  (:method ((object real)) object)
+  (:method ((object (eql :null))) object)
+  (:method ((object (eql :undefined))) object)
+  (:method ((object (eql t))) object)
+  (:method ((object null)) object)
+  (:method ((object string)) object)
+  (:method ((object sequence))
+    (map (type-of object) #'jcopy object))
+  (:method ((object hash-table))
+    (let ((new (make-hash-table :test 'equal)))
+      (maphash (lambda (key val)
+                 (setf (gethash key new) val))
+               object)
+      new))
+  (:documentation "Copy the OBJECT, potentially creating an identical one."))
+
+(defun copy_ (object)
+  "Copy the OBJECT, potentially creating an identical one.
+
+For generic implementation and getails, see `jcopy'."
+  (jcopy object))
+
 (defgeneric jtruep (object)
   (:method (object)
     t)
