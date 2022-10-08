@@ -94,7 +94,7 @@ For generic implementation and getails, see `jget'."
           (subseq object (1+ index))))
   (:method ((key string) (object hash-table))
     (remhash key object))
-  (:method (value key (object string))
+  (:method (key (object string))
     (error 'non-indexable :value object))
   (:method ((index string) (object sequence))
     (error 'invalid-key :key index :object object))
