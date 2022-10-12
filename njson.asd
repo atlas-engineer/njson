@@ -7,7 +7,6 @@
   :homepage "https://github.com/atlas-engineer/njson"
   :license  "BSD-3 Clause"
   :version "0.1.0"
-  :in-order-to ((test-op (test-op "njson/tests")))
   :serial t
   :components ((:file "package")
                (:file "conditions")
@@ -17,7 +16,8 @@
 
 (defsystem "njson/cl-json"
   :depends-on (#:njson #:cl-json)
-  :components ((:file "backend/cl-json")))
+  :components ((:file "backend/cl-json"))
+  :in-order-to ((test-op (test-op "njson/tests"))))
 
 (defsystem "njson/tests"
   :depends-on (#:njson #:lisp-unit2)
