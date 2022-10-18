@@ -18,7 +18,7 @@ Load NJSON (with a cl-json backend) in the REPL:
   ;; Load it with ASDF.
   (asdf:load-system :njson/cl-json)
   ;; Alternatively, load it with Quicklisp.
-  (ql:quickload ::njson/cl-json)
+  (ql:quickload :njson/cl-json)
   ;; NOTE: :NJSON system implicitly includes :NJSON/CL-JSON backend for
   ;; your convenience. If you want other backend, load :NJSON/BACKEND.
 #+end_src
