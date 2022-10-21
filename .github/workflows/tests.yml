@@ -15,7 +15,7 @@ jobs:
     name: ${{ matrix.lisp }} on ${{ matrix.os }}
     strategy:
       matrix:
-        lisp: [sbcl-bin, ccl, ecl, clisp, abcl]
+        lisp: [sbcl-bin, ccl, ecl, clisp]
         rosargs: [dynamic-space-size=3072]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
