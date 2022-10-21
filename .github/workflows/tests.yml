@@ -67,7 +67,7 @@ jobs:
       shell: bash
       # We test njson/cl-json instead of clean njson here, because njson has no tests by default.
       run: |
-        ros ${{ matrix.rosargs }} -e '(handler-case (ql:quickload :njson/cl-json) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(ql:quickload :lisp-unit2)' -e '(asdf:test-system :njson/cl-json)' -e '(when (or (uiop:symbol-call :lisp-unit2 :failed test-results) (uiop:symbol-call :lisp-unit2 :errors test-results)) (uiop:quit 18))'
+        ros ${{ matrix.rosargs }} -e '(setf *debugger-hook* nil)' -e '(handler-case (ql:quickload :njson/cl-json) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(ql:quickload :lisp-unit2)' -e '(handler-case (asdf:test-system :njson/cl-json) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 18)))' -e '(when (or (uiop:symbol-call :lisp-unit2 :failed test-results) (uiop:symbol-call :lisp-unit2 :errors test-results)) (uiop:quit 19))'
 
     - name: Compilation warnings
       shell: bash
