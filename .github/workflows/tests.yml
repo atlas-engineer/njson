@@ -72,9 +72,9 @@ jobs:
     - name: Compilation warnings
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(load "build-scripts/report-warnings.lisp")' -e '(compilation-conditions :njson)'
+        ros ${{ matrix.rosargs }} -e '(load ".github/report-warnings.lisp")' -e '(compilation-conditions :njson)'
 
     - name: Unbound exports
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(ql:quickload :njson)' -e '(load "build-scripts/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
+        ros ${{ matrix.rosargs }} -e '(ql:quickload :njson)' -e '(load ".github/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
