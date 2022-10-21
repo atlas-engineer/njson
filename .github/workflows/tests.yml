@@ -1,0 +1,80 @@
+# Inspired by http://3bb.cc/blog/2020/09/11/github-ci/.
+name: Tests
+
+# We tell GitHub to not duplicate the checks in pull requests.  See
+# https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/15
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    types: [ opened, synchronize, closed ]
+
+jobs:
+  test:
+    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    strategy:
+      matrix:
+        lisp: [sbcl-bin, ccl]
+        rosargs: [dynamic-space-size=3072]
+        os: [ ubuntu-latest ]
+
+    # run the job on every combination of "lisp" and "os" above
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    # Check out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Cache .roswell
+      id: cache-dot-roswell
+      uses: actions/cache@v1
+      with:
+        path: ~/.roswell
+        key: ${{ runner.os }}-dot-roswell-${{ matrix.lisp }}-${{ hashFiles('**/*.asd') }}
+        restore-keys: |
+          ${{ runner.os }}-dot-roswell-${{ matrix.lisp }}-
+          ${{ runner.os }}-dot-roswell-
+
+    - name: Install Roswell
+      shell: bash
+      # always run install, since it does some global installs and setup that isn't cached
+      env:
+       LISP: ${{ matrix.lisp }}
+      # TODO: Update Roswell to latest version (may need Ubuntu 20.* or above).
+      run: curl -L https://raw.githubusercontent.com/roswell/roswell/v20.06.14.107/scripts/install-for-ci.sh | sh -x
+
+    - name: Check Lisp
+      continue-on-error: true
+      shell: bash
+      run: |
+        ros ${{ matrix.rosargs }} -e '(format t "~a:~a on ~a~%...~%~%" (lisp-implementation-type) (lisp-implementation-version) (machine-type))'
+        ros ${{ matrix.rosargs }} -e '(format t " fixnum bits:~a~%" (integer-length most-positive-fixnum))'
+        ros ${{ matrix.rosargs }} -e "(ql:quickload 'trivial-features)" -e '(format t "features = ~s~%" *features*)'
+
+    - name: Update Quickdist if we have one cached
+      shell: bash
+      run: ros -e "(ql:update-all-dists :prompt nil)"
+
+    # TODO: This should rather include submodules and ASDF-loading,
+    # but we usually use no submodules for libraries. Maybe we should?
+    - name: Load Nyxt
+      shell: bash
+      run: |
+        ros ${{ matrix.rosargs }}  -e '(handler-case (ql:quickload :njson) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
+
+    - name: Run tests
+      shell: bash
+      # We test njson/cl-json instead of clean njson here, because njson has no tests by default.
+      run: |
+        ros ${{ matrix.rosargs }} -e '(handler-case (asdf:load-system :njson/cl-json/tests) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(asdf:test-system :njson/cl-json)'
+
+    - name: Compilation warnings
+      shell: bash
+      run: |
+        ros ${{ matrix.rosargs }} -e '(load "build-scripts/report-warnings.lisp")' -e '(compilation-conditions :njson)'
+
+    - name: Unbound exports
+      shell: bash
+      run: |
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson)' -e '(load "build-scripts/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
