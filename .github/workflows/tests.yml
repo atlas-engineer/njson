@@ -61,13 +61,13 @@ jobs:
     - name: Load the system
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }}  -e '(handler-case (ql:quickload :njson) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
+        ros ${{ matrix.rosargs }}  -e '(handler-case (progn (push (uiop:getcwd) asdf:*central-registry*) (ql:quickload :njson)) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
 
     - name: Run tests
       shell: bash
       # We test njson/cl-json instead of clean njson here, because njson has no tests by default.
       run: |
-        ros ${{ matrix.rosargs }} -e '(setf *debugger-hook* nil)' -e '(handler-case (ql:quickload :njson/cl-json) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(ql:quickload :lisp-unit2)' -e '(asdf:test-system :njson/cl-json)'
+        ros ${{ matrix.rosargs }} -e '(setf *debugger-hook* nil)' -e '(handler-case (progn (push (uiop:getcwd) asdf:*central-registry*) (ql:quickload :njson/cl-json)) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(ql:quickload :lisp-unit2)' -e '(asdf:test-system :njson/cl-json)'
 
     - name: Compilation warnings
       shell: bash
@@ -77,4 +77,4 @@ jobs:
     - name: Unbound exports
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(ql:quickload :njson)' -e '(load ".github/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
+        ros ${{ matrix.rosargs }} -e '(progn (push (uiop:getcwd) asdf:*central-registry*) (ql:quickload :njson))' -e '(load ".github/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
