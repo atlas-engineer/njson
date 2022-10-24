@@ -9,9 +9,7 @@
                  (not (find-class s nil))
                  ;; TODO: How can we portably check if symbol refers to a type?
                  #+sbcl
-                 (not (sb-ext:defined-type-name-p s))
-                 (and (find-package :parenscript)
-                      (not (gethash s parenscript::*macro-toplevel*))))
+                 (not (sb-ext:defined-type-name-p s)))
         (push s result )))))
 
 (defun subpackage-p (subpackage package)
