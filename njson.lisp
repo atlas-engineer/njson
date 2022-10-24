@@ -5,6 +5,7 @@
 
 (defgeneric decode-from-stream (stream)
   (:method (stream)
+    (declare (ignore stream))
     (signal 'decode-from-stream-not-implemented))
   (:documentation "Decode JSON from STREAM.
 Specialize on `stream' to make NJSON decode JSON."))
@@ -45,6 +46,7 @@ Decodes:
 
 (defgeneric encode-to-stream (object stream)
   (:method (object stream)
+    (declare (ignore object stream))
     (signal 'encode-to-stream-not-implemented))
   (:documentation "Encode OBJECT to STREAM as JSON.
 Specialize on `stream' (and, optionally, OBJECT types) to make NJSON encode JSON."))
