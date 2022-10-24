@@ -72,7 +72,7 @@ jobs:
     - name: Compilation warnings
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} 'e '(push (uiop:getcwd) ql:*local-project-directories*)' -e '(load ".github/report-warnings.lisp")' -e '(compilation-conditions :njson)'
+        ros ${{ matrix.rosargs }} -e '(push (uiop:getcwd) ql:*local-project-directories*)' -e '(load ".github/report-warnings.lisp")' -e '(compilation-conditions :njson)'
 
     - name: Unbound exports
       shell: bash
