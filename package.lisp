@@ -5,8 +5,8 @@
   (:use #:common-lisp)
   (:export
    ;; Conditions
-   #:decode-json-from-stream-not-implemented
-   #:encode-json-to-stream-not-implemented
+   #:decode-from-stream-not-implemented
+   #:encode-to-stream-not-implemented
    #:invalid-key #:non-indexable
    ;; Main generics
    #:decode #:encode
