@@ -1,6 +1,16 @@
 ;;;; SPDX-FileCopyrightText: Atlas Engineer LLC
 ;;;; SPDX-License-Identifier: BSD-3 Clause
 
+(uiop:define-package #:njson/aliases
+  (:use #:common-lisp)
+  (:export
+   #:decode #:encode
+   #:has #:get #:rem #:copy #:true
+   #:if #:when #:or #:and #:not)
+  (:shadow #:get #:rem #:if #:when #:or #:and #:not)
+  (:documentation "Short aliases for the regular njson functions.
+Perfect with j: package-local-nickname, disastrous when :use-d."))
+
 (in-package #:njson/aliases)
 
 (setf (symbol-function 'njson/aliases:decode) #'njson:decode

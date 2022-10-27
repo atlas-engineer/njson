@@ -37,13 +37,3 @@ Generics to implement:
   methods to speed things up.
 - `njson:decode-json-from-string' and `njson:decode-json-from-file', as more
   specific decoding methods."))
-
-(uiop:define-package #:njson/aliases
-  (:use #:common-lisp)
-  (:export
-   #:decode #:encode
-   #:has #:get #:rem #:copy #:true
-   #:if #:when #:or #:and #:not)
-  (:shadow #:get #:rem #:if #:when #:or #:and #:not)
-  (:documentation "Short aliases for the regular njson functions.
-Perfect with j: package-local-nickname, disastrous when :use-d."))
