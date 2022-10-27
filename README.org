@@ -96,13 +96,22 @@ more valuable.
 
 NJSON has strict requirements on the returned data, but this
 strictness enables a rich set of JSON-handling primitives/helpers. You
-can safely import those helpers into your code if you are concerned
-with convenient JSON handling; or you can define a package local
-nickname for NJSON to be a mere ~j:~, so that these helpers are just a
-couple of characters longer than the regular Lisp constructs. The
-helpers are:
+can
+- safely ~:use #:njson~ in your packages if you want short and convenient JSON
+  operations there;
 
-*** FUNCTION njson:jget (alias: njson:get_)
+- or you can define a package local nickname for ~:njson/aliases~ to be
+  a mere ~j:~ (using ~trivial-package-local-nicknames~), so that even
+  shorter helpers (just a couple of characters longer than the regular
+  CL constructs) are available:
+#+begin_src lisp
+  (trivial-package-local-nicknames:add-package-local-nickname :j :njson/aliases :YOUR-PACKAGE)
+#+end_src
+
+
+The helpers are:
+
+*** FUNCTION njson:jget (alias: njson/aliases:get)
 
 Gets the value from the JSON object/array indexed by a certain key
 
@@ -113,7 +122,7 @@ Gets the value from the JSON object/array indexed by a certain key
   ;; => 5
 #+end_src
 
-*** FUNCTION njson:jhas (alias: njson:has_)
+*** FUNCTION njson:jhas (alias: njson/aliases:has)
 
 Checks the presence of the value under KEY-OR-INDEX in OBJECT.
 
@@ -124,7 +133,7 @@ Checks the presence of the value under KEY-OR-INDEX in OBJECT.
   ;; => NIL
 #+end_src
 
-*** FUNCTION njson:jrem (alias: njson:rem_)
+*** FUNCTION njson:jrem (alias: njson/aliases:rem)
 
 Removes the value from the JSON object/array indexed by a certain key
 
@@ -137,7 +146,7 @@ Removes the value from the JSON object/array indexed by a certain key
   ;; => #<HASH-TABLE :TEST EQUAL :COUNT 0 {1007F2F1A3}>
 #+end_src
 
-*** FUNCTION njson:jcopy (alias: njson:copy_)
+*** FUNCTION njson:jcopy (alias: njson/aliases:copy)
 
 Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object.
 
@@ -153,7 +162,8 @@ Copies the whole thing it's passed, no mater the nesting, into a fresh new equal
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.
 
 All the macros below utilize it, so, if you want to change the behavior of those, specialize this function.
-*** MACRO njson:jwhen (alias: njson:when_)
+
+*** MACRO njson:jwhen (alias: njson/aliases:when)
 
 A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
 
@@ -166,7 +176,7 @@ A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:if (alias: njson:if_)
+*** MACRO njson:if (alias: njson/aliases:if)
 
 A regular Lisp ~if~ aware of JSON truths and lies.
 
@@ -177,7 +187,7 @@ A regular Lisp ~if~ aware of JSON truths and lies.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson:or_, njson:and_, njson:not_)
+*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson/aliases:or, njson/aliases:and, njson/aliases:not)
 
 Regular Lisp logic operators, with awareness of JSON values.
 

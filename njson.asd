@@ -14,6 +14,11 @@
                (:file "functions")
                (:file "macros")))
 
+(defsystem "njson/aliases"
+  :description "Convenient aliases for NJSON operations."
+  :depends-on (#:njson)
+  :components ((:file "aliases")))
+
 (defsystem "njson/cl-json"
   :depends-on (#:njson #:cl-json)
   :components ((:file "backend/cl-json"))
