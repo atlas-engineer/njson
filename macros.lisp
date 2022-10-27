@@ -50,7 +50,7 @@ Alias for `jand'."
 
 (defmacro jnot (arg)
   "JSON-aware version of `cl:not'."
-  `(not (jtrue ,arg)))
+  `(not (jtruep ,arg)))
 
 (defmacro not_ (arg)
   "JSON-aware version of `cl:not'.
