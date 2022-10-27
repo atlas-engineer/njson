@@ -189,13 +189,15 @@ For generic implementation and getails, see `jcopy'."
     (not (member object (list nil :null))))
   (:documentation "Test OBJECT for truthiness in JSON terms."))
 
+(dolist (symbol '(jtrue-p jtrue?))
+  (setf (symbol-function symbol) #'jtruep))
+
 (macrolet ((defalias (name)
              `(defun ,name (object)
                 "Test OBJECT for truthiness in JSON terms.
 For generic implementation, see `jtruep'."
+                (warn 'deprecated :deprecated (quote ,name) :replacement 'njson/aliases:true)
                 (jtruep object))))
-  (defalias jtrue-p)
-  (defalias jtrue?)
   (defalias truep)
   (defalias true-p)
   (defalias true?))
