@@ -201,3 +201,13 @@ For generic implementation, see `jtruep'."
   (defalias truep)
   (defalias true-p)
   (defalias true?))
+
+(defun jnot (arg)
+  "JSON-aware version of `cl:not'."
+  (not (jtruep arg)))
+
+(defun not_ (arg)
+  "JSON-aware version of `cl:not'.
+Alias for `jnot'."
+  (warn 'deprecated :deprecated 'not_ :replacement "NJSON/ALIASES:NOT")
+  (jnot arg))

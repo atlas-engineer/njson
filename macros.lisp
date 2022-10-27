@@ -51,13 +51,3 @@ Alias for `jor'."
 Alias for `jand'."
   (warn 'deprecated :deprecated 'and_ :replacement "NJSON/ALIASES:AND")
   `(and ,@args))
-
-(defmacro jnot (arg)
-  "JSON-aware version of `cl:not'."
-  `(not (jtruep ,arg)))
-
-(defmacro not_ (arg)
-  "JSON-aware version of `cl:not'.
-Alias for `jnot'."
-  (warn 'deprecated :deprecated 'not_ :replacement "NJSON/ALIASES:NOT")
-  `(jnot ,arg))
