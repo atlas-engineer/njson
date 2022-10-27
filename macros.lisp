@@ -14,6 +14,7 @@ If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE."
   "JSON-aware version of `cl:if'.
 If TEST is `jtruep' evaluate THEN, otherwise evaluate ELSE.
 Alias for `jif'."
+  (warn 'deprecated :deprecated 'if_ :replacement 'njson/aliases:if)
   `(jif ,test ,then ,else))
 
 (defmacro jwhen (test &body body)
@@ -26,6 +27,7 @@ If TEST is `jtruep' evaluate BODY."
   "JSON-aware version of `cl:when'.
 If TEST is `jtruep' evaluate BODY.
 Alias for `jwhen'."
+  (warn 'deprecated :deprecated 'when_ :replacement 'njson/aliases:when)
   `(jwhen ,test ,@body))
 
 (defmacro jor (&rest args)
@@ -36,6 +38,7 @@ Alias for `jwhen'."
 (defmacro or_ (&rest args)
   "JSON-aware version of `cl:or'.
 Alias for `jor'."
+  (warn 'deprecated :deprecated 'or_ :replacement 'njson/aliases:or)
   `(or ,@args))
 
 (defmacro jand (&rest args)
@@ -46,6 +49,7 @@ Alias for `jor'."
 (defmacro and_ (&rest args)
   "JSON-aware version of `cl:and'.
 Alias for `jand'."
+  (warn 'deprecated :deprecated 'and_ :replacement 'njson/aliases:and)
   `(and ,@args))
 
 (defmacro jnot (arg)
@@ -55,4 +59,5 @@ Alias for `jand'."
 (defmacro not_ (arg)
   "JSON-aware version of `cl:not'.
 Alias for `jnot'."
+  (warn 'deprecated :deprecated 'not_ :replacement 'njson/aliases:not)
   `(jnot ,arg))

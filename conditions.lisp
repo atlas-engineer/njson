@@ -46,3 +46,12 @@ Are you sure you're indexing the right thing?~]"
   (:report (lambda (condition stream)
              (format stream "Non-indexable ~a."
                      (encode (object condition))))))
+
+(define-condition deprecated (warning)
+  ((deprecated :initarg :deprecated
+               :accessor deprecated)
+   (replacement :initarg :replacement
+                :accessor replacement))
+  (:report (lambda (condition stream)
+             (format stream "~a is deprecated. It will be removed in the next major release.
+Use ~a instead." (deprecated condition) (replacement condition)))))

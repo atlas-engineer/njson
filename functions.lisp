@@ -30,6 +30,7 @@ arrays or objects."))
   "Check the presence of the value under KEY-OR-INDEX in OBJECT.
 
 For generic implementation and getails, see `jhas'."
+  (warn 'deprecated :deprecated 'has_ :replacement 'njson/aliases:has)
   (jhas key-or-index object))
 
 (defgeneric jget (key-or-index object)
@@ -110,12 +111,14 @@ OBJECT can be JSON array or object, which in Lisp translates to any
 valid `sequence' ot `hash-table'.
 
 For generic implementation and getails, see `jget'."
+  (warn 'deprecated :deprecated 'get_ :replacement 'njson/aliases:get)
   (jget key-or-index object))
 
 (defun (setf get_) (value key-or-index object)
   "Set the value at KEY-OR-INDEX in OBJECT.
 
 For generic implementation and getails, see `jget'."
+  (warn 'deprecated :deprecated 'get_ :replacement 'njson/aliases:get)
   (setf (jget key-or-index object) value))
 
 (defgeneric jrem (key-or-index object)
@@ -146,6 +149,7 @@ arrays or objects."))
   "Remove the value at KEY-OR-INDEX of OBJECT.
 
 For generic implementation and getails, see `jrem'."
+  (warn 'deprecated :deprecated 'rem_ :replacement 'njson/aliases:rem)
   (jrem key-or-index object))
 
 (defgeneric jcopy (object)
@@ -169,6 +173,7 @@ For generic implementation and getails, see `jrem'."
   "Copy the OBJECT, potentially creating an identical one.
 
 For generic implementation and getails, see `jcopy'."
+  (warn 'deprecated :deprecated 'copy_ :replacement 'njson/aliases:copy)
   (jcopy object))
 
 (defgeneric jtruep (object)
