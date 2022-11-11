@@ -31,11 +31,11 @@
   non-falsity-based control flow.
 
 Generics to implement:
-- `njson:encode-json-to-stream' and `njson:decode-json-from-stream' as the basic
+- `njson:encode-to-stream' and `njson:decode-from-stream' as the basic
   methods to specialize for every backend.
-- `njson:encode-json-to-string' and `njson:encode-json-to-file', as more specific
+- `njson:encode-to-string' and `njson:encode-to-file', as more specific
   methods to speed things up.
-- `njson:decode-json-from-string' and `njson:decode-json-from-file', as more
+- `njson:decode-from-string' and `njson:decode-from-file', as more
   specific decoding methods."))
 
 (push :njson *features*)
