@@ -193,3 +193,4 @@ Regular Lisp logic operators, with awareness of JSON values.
 
 * Roadmap
 - [ ] Make an in-depth guide on supporting other backends.
+- [ ] Add an object-specific things, like ~j:keys~ and ~j:vals~ (would work for arrays too, I guess)?
