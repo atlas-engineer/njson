@@ -5,7 +5,7 @@
   (:use #:common-lisp)
   (:export
    #:decode #:encode
-   #:has #:get #:rem #:copy #:true
+   #:has #:get #:rem #:copy #:true #:truep #:true?
    #:if #:when #:or #:and #:not)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
