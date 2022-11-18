@@ -17,9 +17,12 @@ Perfect with j: package-local-nickname, disastrous when :use-d."))
       (symbol-function 'njson/aliases:encode) #'njson:encode
       (symbol-function 'njson/aliases:has) #'njson:jhas
       (symbol-function 'njson/aliases:get) #'njson:jget
+      (fdefinition '(setf njson/aliases:get)) (fdefinition '(setf njson:jget))
       (symbol-function 'njson/aliases:rem) #'njson:jrem
       (symbol-function 'njson/aliases:copy) #'njson:jcopy
-      (symbol-function 'njson/aliases:true) #'njson:jtruep)
+      (symbol-function 'njson/aliases:true) #'njson:jtruep
+      (symbol-function 'njson/aliases:truep) #'njson:jtruep
+      (symbol-function 'njson/aliases:true?) #'njson:jtruep)
 
 (defmacro njson/aliases:if (test then &optional (else nil))
   "JSON-aware version of `cl:if'.
