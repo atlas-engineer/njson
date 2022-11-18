@@ -6,7 +6,7 @@
   :author "Atlas Engineer LLC"
   :homepage "https://github.com/atlas-engineer/njson"
   :license  "BSD-3 Clause"
-  :version "0.2.1"
+  :version "0.2.2"
   :serial t
   :components ((:file "package")
                (:file "conditions")
