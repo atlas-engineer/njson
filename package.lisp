@@ -37,5 +37,3 @@ Generics to implement:
   methods to speed things up.
 - `njson:decode-from-string' and `njson:decode-from-file', as more
   specific decoding methods."))
-
-(push :njson *features*)
