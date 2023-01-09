@@ -16,7 +16,7 @@
 
 (defsystem "njson/aliases"
   :description "Convenient aliases for NJSON operations."
-  :depends-on (#:njson)
+  :depends-on ("njson")
   :components ((:file "aliases")))
 
 (defsystem "njson/submodules"
@@ -24,7 +24,7 @@
   :class :nasdf-submodule-system)
 
 (defsystem "njson/cl-json"
-  :depends-on (#:njson #:cl-json)
+  :depends-on ("njson" "cl-json")
   :components ((:file "backend/cl-json"))
   :in-order-to ((test-op (test-op "njson/tests")
                          (test-op "njson/tests/compilation"))))
@@ -32,7 +32,7 @@
 (defsystem "njson/tests"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-test-system
-  :depends-on (#:njson)
+  :depends-on ("njson")
   :targets (:package :njson/tests)
   :serial t
   :pathname "tests/"
@@ -42,5 +42,5 @@
 (defsystem "njson/tests/compilation"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-compilation-test-system
-  :depends-on (#:njson)
+  :depends-on ("njson" "njson/aliases")
   :packages (:njson :njson/aliases))
