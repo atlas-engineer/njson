@@ -19,23 +19,28 @@
   :depends-on (#:njson)
   :components ((:file "aliases")))
 
+(defsystem "njson/submodules"
+  :defsystem-depends-on ("nasdf")
+  :class :nasdf-submodule-system)
+
 (defsystem "njson/cl-json"
   :depends-on (#:njson #:cl-json)
   :components ((:file "backend/cl-json"))
-  :in-order-to ((test-op (test-op "njson/tests"))))
+  :in-order-to ((test-op (test-op "njson/tests")
+                         (test-op "njson/tests/compilation"))))
 
 (defsystem "njson/tests"
-  :depends-on (#:njson #:lisp-unit2)
+  :defsystem-depends-on ("nasdf")
+  :class :nasdf-test-system
+  :depends-on (#:njson)
+  :targets (:package :njson/tests)
   :serial t
   :pathname "tests/"
   :components ((:file "package")
-               (:file "tests"))
-  :perform (test-op (o c)
-                    (let ((test-results (symbol-call :lisp-unit2 :run-tests
-                                                     :package :njson/tests
-                                                     :run-contexts (find-symbol "WITH-SUMMARY-CONTEXT" :lisp-unit2))))
-                      (when (or
-                             (uiop:symbol-call :lisp-unit2 :failed test-results)
-                             (uiop:symbol-call :lisp-unit2 :errors test-results))
-                        ;; Arbitrary but hopefully recognizable exit code.
-                        (quit 18)))))
+               (:file "tests")))
+
+(defsystem "njson/tests/compilation"
+  :defsystem-depends-on ("nasdf")
+  :class :nasdf-compilation-test-system
+  :depends-on (#:njson)
+  :packages (:njson :njson/aliases))

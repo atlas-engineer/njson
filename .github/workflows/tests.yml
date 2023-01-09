@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: Atlas Engineer LLC
+# SPDX-License-Identifier: BSD-3 Clause
 # Inspired by http://3bb.cc/blog/2020/09/11/github-ci/.
 name: Tests
 
@@ -15,9 +17,12 @@ jobs:
     name: ${{ matrix.lisp }} on ${{ matrix.os }}
     strategy:
       matrix:
-        lisp: [sbcl-bin, ccl, ecl]
+        # Use ccl-bin/1.12.1 instead of 'ccl' because of
+        # https://github.com/roswell/roswell/issues/534.
+        # TODO: Revert when Roswell is functional again.
+        lisp: [sbcl-bin, ccl-bin/1.12.1, ecl/21.2.1]
         rosargs: [dynamic-space-size=3072]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest] # try windows-latest when we understand commands to install Roswell on it
 
     # run the job on every combination of "lisp" and "os" above
     runs-on: ${{ matrix.os }}
@@ -48,33 +53,27 @@ jobs:
       continue-on-error: true
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(format t "~a:~a on ~a~%...~%~%" (lisp-implementation-type) (lisp-implementation-version) (machine-type))'
-        ros ${{ matrix.rosargs }} -e '(format t " fixnum bits:~a~%" (integer-length most-positive-fixnum))'
-        ros ${{ matrix.rosargs }} -e "(ql:quickload 'trivial-features)" -e '(format t "features = ~s~%" *features*)'
+        ros ${{ matrix.rosargs }} -e '(format t "~&~a:~a on ~a~%" (lisp-implementation-type) (lisp-implementation-version) (machine-type))'
+        ros ${{ matrix.rosargs }} -e '(format t "ASDF: ~a~%" (asdf:asdf-version))'
+        ros ${{ matrix.rosargs }} -e '(format t "fixnum bits: ~a~%" (integer-length most-positive-fixnum))'
+        ros ${{ matrix.rosargs }} -e '(format t "features: ~s~%" *features*)'
 
-    - name: Update Quickdist if we have one cached
+    - name: Fetch Common Lisp third-party dependencies
       shell: bash
-      run: ros -e "(ql:update-all-dists :prompt nil)"
+      run: |
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)'
+        mkdir -p ~/.config/common-lisp/source-registry.conf.d/
+        echo "(:tree \"$PWD/_build/submodules\")" > ~/.config/common-lisp/source-registry.conf.d/asdf.conf
 
-    # TODO: This should rather include submodules and ASDF-loading,
-    # but we usually use no submodules for libraries. Maybe we should?
     - name: Load the system
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(push (uiop:getcwd) ql:*local-project-directories*)' -e '(handler-case (ql:quickload :njson) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(handler-case (asdf:load-system :njson) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
 
     - name: Run tests
       shell: bash
-      # We test njson/cl-json instead of clean njson here, because njson has no tests by default.
+      # Export CI to tell ASDF to quit on test errors.
+      env:
+       NASDF_TESTS_QUIT_ON_FAIL: yes
       run: |
-        ros ${{ matrix.rosargs }} -e '(setf *debugger-hook* nil)' -e '(push (uiop:getcwd) ql:*local-project-directories*)' -e '(handler-case (ql:quickload :njson/cl-json) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(ql:quickload :lisp-unit2)' -e '(asdf:test-system :njson/cl-json)'
-
-    - name: Compilation warnings
-      shell: bash
-      run: |
-        ros ${{ matrix.rosargs }} -e '(push (uiop:getcwd) ql:*local-project-directories*)' -e '(load ".github/report-warnings.lisp")' -e '(compilation-conditions :njson)'
-
-    - name: Unbound exports
-      shell: bash
-      run: |
-        ros ${{ matrix.rosargs }} -e '(progn (push (uiop:getcwd) ql:*local-project-directories*) (ql:quickload :njson))' -e '(load ".github/report-unbound-exports.lisp")' -e '(unbound-exports :njson)'
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(handler-case (asdf:load-system :njson/tests) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(asdf:test-system :njson/cl-json)'
