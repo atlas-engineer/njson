@@ -14,10 +14,6 @@ Sub-packages are included in the check."))
   (:documentation "Specialized systems for compilation tests."))
 (import 'nasdf-compilation-test-system  :asdf-user)
 
-(defmethod asdf:component-depends-on ((op asdf:prepare-op) (c nasdf-compilation-test-system))
-  `((asdf:load-op "lisp-unit2")
-    ,@(call-next-method)))
-
 (defun list-unbound-exports (package)
   (let ((result '()))
     (do-external-symbols (s (find-package package) result)
