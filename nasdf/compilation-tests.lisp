@@ -4,7 +4,7 @@
 (in-package :nasdf)
 
 (export-always 'nasdf-compilation-test-system)
-(defclass nasdf-compilation-test-system (asdf:system)
+(defclass nasdf-compilation-test-system (nasdf-test-system)
   ((packages
     :initform '()  ;; (error "Packages required")
     :initarg :packages
@@ -51,11 +51,15 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
                                        (list package exports))))
                                  (cons (find-package package) (list-subpackages package))))))
     (when report
-      (error "~a~&Found unbound exported symbols in ~a packages."
+      (error "~a~&Found unbound exported symbols in ~a package~:p."
              report (length report)))))
 
 (defmethod asdf:perform ((op asdf:test-op) (c nasdf-compilation-test-system))
-  (mapc #'unbound-exports (packages c)))
+  (logger "------- STARTING Compilation Testing: ~a" (packages c))
+  (mapc #'unbound-exports (packages c))
+  (logger "------- ENDING Compilation Testing: ~a" (packages c)))
 
 (defmethod asdf:perform ((op asdf:load-op) (c nasdf-compilation-test-system))
-  (mapc #'unbound-exports (packages c)))
+  (logger "------- STARTING Compilation Testing: ~a" (packages c))
+  (mapc #'unbound-exports (packages c))
+  (logger "------- ENDING Compilation Testing: ~a" (packages c)))
