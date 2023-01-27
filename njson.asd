@@ -12,12 +12,12 @@
                (:file "conditions")
                (:file "njson")
                (:file "functions")
-               (:file "macros")))
+               (:file "macros")
+               (:file "aliases")))
 
 (defsystem "njson/aliases"
-  :description "Convenient aliases for NJSON operations."
-  :depends-on ("njson")
-  :components ((:file "aliases")))
+  :description "(Merged into main njson system) Convenient aliases for NJSON operations."
+  :depends-on ("njson"))
 
 (defsystem "njson/submodules"
   :defsystem-depends-on ("nasdf")
