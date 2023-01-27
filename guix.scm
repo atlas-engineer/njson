@@ -30,7 +30,7 @@
 (define-public sbcl-njson
   (package
    (name "sbcl-njson")
-   (version "0.0.0")
+   (version "0.2.4")
    (source
     (local-file (dirname (current-filename)) #:recursive? #t)
     ;;;; Or this, in case of contributing to Guix.
