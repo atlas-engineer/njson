@@ -23,8 +23,8 @@ Sub-packages are included in the check."))
                  ;; TODO: How can we portably check if symbol refers to a type?
                  #+sbcl
                  (not (sb-ext:defined-type-name-p s))
-                 (and (find-package :parenscript)
-                      (not (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript))))))
+                 (or (not (find-package :parenscript))
+                     (not (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript))))))
         (push s result)))))
 
 (defun subpackage-p (subpackage package)
