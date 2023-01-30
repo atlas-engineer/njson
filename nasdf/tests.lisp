@@ -32,7 +32,20 @@ If the NASDF_TESTS_NO_NETWORK environment variable is set, tests with the `:onli
                              nil        ; We are non-interactive.
                              *debugger-hook*)))
     (handler-bind ((error (lambda (c)
-                            (format *error-output* "~&~a~%" c)
+                            (logger "Errors:~&~a" c)
+                            (when (env-true-p "NASDF_TESTS_QUIT_ON_FAIL")
+                              ;; Arbitrary but hopefully recognizable exit code.
+                              (quit 18)))))
+      (call-next-method))))
+
+;; TODO: Can we avoid duplicating this `test-op' / `load-op' setup?
+(defmethod asdf:perform :around ((op asdf:load-op) (c nasdf-test-system))
+  (logger "NASDF_TESTS_QUIT_ON_FAIL=~a~&" (getenv "NASDF_TESTS_QUIT_ON_FAIL"))
+  (let ((*debugger-hook* (if (env-true-p "NASDF_TESTS_QUIT_ON_FAIL")
+                             nil        ; We are non-interactive.
+                             *debugger-hook*)))
+    (handler-bind ((error (lambda (c)
+                            (logger "Errors:~&~a" c)
                             (when (env-true-p "NASDF_TESTS_QUIT_ON_FAIL")
                               ;; Arbitrary but hopefully recognizable exit code.
                               (quit 18)))))

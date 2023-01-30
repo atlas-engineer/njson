@@ -12,7 +12,7 @@
     :documentation "Packages to check for unbound exports.
 Sub-packages are included in the check."))
   (:documentation "Specialized systems for compilation tests."))
-(import 'nasdf-compilation-test-system  :asdf-user)
+(import 'nasdf-compilation-test-system :asdf-user)
 
 (defun list-unbound-exports (package)
   (let ((result '()))
@@ -55,11 +55,6 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
              report (length report)))))
 
 (defmethod asdf:perform ((op asdf:test-op) (c nasdf-compilation-test-system))
-  (logger "------- STARTING Compilation Testing: ~a" (packages c))
-  (mapc #'unbound-exports (packages c))
-  (logger "------- ENDING Compilation Testing: ~a" (packages c)))
-
-(defmethod asdf:perform ((op asdf:load-op) (c nasdf-compilation-test-system))
   (logger "------- STARTING Compilation Testing: ~a" (packages c))
   (mapc #'unbound-exports (packages c))
   (logger "------- ENDING Compilation Testing: ~a" (packages c)))
