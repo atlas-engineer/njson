@@ -43,4 +43,4 @@
   :defsystem-depends-on ("nasdf")
   :class :nasdf-compilation-test-system
   :depends-on ("njson" "njson/aliases")
-  :packages (:njson :njson/aliases))
+  :packages (:njson))
