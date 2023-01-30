@@ -58,12 +58,18 @@ jobs:
         ros ${{ matrix.rosargs }} -e '(format t "fixnum bits: ~a~%" (integer-length most-positive-fixnum))'
         ros ${{ matrix.rosargs }} -e '(format t "features: ~s~%" *features*)'
 
+    - name: Register current checkout path in ASDF
+      shell: bash
+      run: |
+        mkdir -p ~/.config/common-lisp/source-registry.conf.d/
+        echo "(:tree \"$PWD\")" > ~/.config/common-lisp/source-registry.conf.d/asdf.conf
+
     - name: Fetch Common Lisp third-party dependencies
       shell: bash
       run: |
         ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)'
         mkdir -p ~/.config/common-lisp/source-registry.conf.d/
-        echo "(:tree \"$PWD/_build/submodules\")" > ~/.config/common-lisp/source-registry.conf.d/asdf.conf
+        echo "(:tree \"$PWD/_build/submodules\")" >> ~/.config/common-lisp/source-registry.conf.d/asdf.conf
 
     - name: Load the system
       shell: bash
