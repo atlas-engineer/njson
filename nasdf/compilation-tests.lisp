@@ -25,7 +25,7 @@ Sub-packages are included in the check."))
                  (not (sb-ext:defined-type-name-p s))
                  (and (find-package :parenscript)
                       (not (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript))))))
-        (push s result )))))
+        (push s result)))))
 
 (defun subpackage-p (subpackage package)
   "Return non-nil if SUBPACKAGE is a sub-package of PACKAGE.
