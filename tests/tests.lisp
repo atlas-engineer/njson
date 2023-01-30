@@ -46,7 +46,7 @@
     (assert-typep 'hash-table (jget "quux" object-of-everything))
     (assert-eql 1 (jget "one" (jget "quux" object-of-everything)))))
 
-(define-test jcopy ()
+(define-test jcopy-test ()
   (let* ((list '(1 2 3 "hello")))
     (assert-eql 8 (jcopy 8))
     (assert-eql 1.3 (jcopy 1.3))
