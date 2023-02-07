@@ -67,14 +67,21 @@ jobs:
     - name: Fetch Common Lisp third-party dependencies
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)'
+        ros ${{ matrix.rosargs }} -e '(handler-bind ((error (lambda (a) (uiop:print-backtrace) (format *error-output* "Error: ~a~&" a) (uiop:quit 17)))) (asdf:load-system :njson/submodules))'
         mkdir -p ~/.config/common-lisp/source-registry.conf.d/
         echo "(:tree \"$PWD/_build/submodules\")" >> ~/.config/common-lisp/source-registry.conf.d/asdf.conf
 
     - name: Load the system
       shell: bash
       run: |
-        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(handler-case (asdf:load-system :njson) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))'
+        # TODO: Can we make CCL backtraces more readable?  With trivial-backtrace maybe?
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(handler-bind ((error (lambda (a) (uiop:print-condition-backtrace a) (format *error-output* "Error: ~a~&" a) (uiop:quit 17)))) (asdf:load-system :njson))'
+
+    # Load tests separately to not clutter the test output.
+    - name: Load tests
+      shell: bash
+      run: |
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e  '(handler-bind ((error (lambda (a) (uiop:print-backtrace) (format *error-output* "~a~&" a) (uiop:quit 17)))) (asdf:load-system :njson/tests))'
 
     - name: Run tests
       shell: bash
@@ -82,4 +89,4 @@ jobs:
       env:
        NASDF_TESTS_QUIT_ON_FAIL: yes
       run: |
-        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(handler-case (asdf:load-system :njson/tests) (error (a) (format t "caught error ~s~%~a~%" a a) (uiop:quit 17)))' -e '(asdf:test-system :njson/cl-json)'
+        ros ${{ matrix.rosargs }} -e '(asdf:load-system :njson/submodules)' -e '(asdf:test-system :njson/cl-json)'
