@@ -151,9 +151,9 @@ Removes the value from the JSON object/array indexed by a certain key
 Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object.
 
 #+begin_src lisp
-  (njson:jget "key" (njson:decode "{\"key\": 5}"))
+  (defvar data (njson:jget "key" (njson:decode "{\"key\": 5}")))
   ;; => 5
-  (njson:jget 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  (njson:jget "key" (njson:jcopy data))
   ;; => 5
 #+end_src
 
