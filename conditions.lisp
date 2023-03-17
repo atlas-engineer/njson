@@ -4,6 +4,7 @@
 (in-package #:njson)
 
 (define-condition decode-from-stream-not-implemented (error) ()
+  (:documentation "Incomplete decoding implementation error.")
   (:report "DECODE-FROM-STREAM is not specialized.
 You need to specialize it to use NJSON. Example:
 
@@ -13,6 +14,7 @@ You need to specialize it to use NJSON. Example:
 Alternatively, load a system with this method already defined, like :njson/cl-json."))
 
 (define-condition encode-to-stream-not-implemented (error) ()
+  (:documentation "Incomplete encoding implementation error.")
   (:report "ENCODE-TO-STREAM is not specialized.
 You need to specialize it to use NJSON. Example:
 
@@ -26,6 +28,7 @@ Alternatively, load a system with this method already defined, like :njson/cl-js
            :accessor object)
    (key :initarg :key
         :accessor key))
+  (:documentation "The condition thrown on using wrong key with object/array.")
   (:report (lambda (condition stream)
              (format stream "Cannot index JSON ~[object~;array~;value~] ~a with key ~s.
 ~[Use string keys instead.~;~
@@ -43,6 +46,7 @@ Are you sure you're indexing the right thing?~]"
 (define-condition non-indexable ()
   ((value :initarg :value
           :accessor value))
+  (:documentation "The condition thrown on trying to index non-object/array.")
   (:report (lambda (condition stream)
              (format stream "Non-indexable ~a."
                      (encode (object condition))))))
@@ -52,6 +56,7 @@ Are you sure you're indexing the right thing?~]"
                :accessor deprecated)
    (replacement :initarg :replacement
                 :accessor replacement))
+  (:documentation "Deprecation warning.")
   (:report (lambda (condition stream)
              (format stream "~a is deprecated. It will be removed in the next major release.
 Use ~a instead." (deprecated condition) (replacement condition)))))
