@@ -14,15 +14,20 @@ Sub-packages are included in the check."))
   (:documentation "Specialized systems for compilation tests."))
 (import 'nasdf-compilation-test-system :asdf-user)
 
+(defun valid-type-p (type-specifier)
+  (handler-case
+      (progn
+        (typep t type-specifier)
+        t)
+    (error () nil)))
+
 (defun list-unbound-exports (package)
   (let ((result '()))
     (do-external-symbols (s (find-package package) result)
       (when (and (not (fboundp s))
                  (not (boundp s))
                  (not (find-class s nil))
-                 ;; TODO: How can we portably check if symbol refers to a type?
-                 #+sbcl
-                 (not (sb-ext:defined-type-name-p s))
+                 (not (valid-type-p s))
                  (or (not (find-package :parenscript))
                      (not (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript))))))
         (push s result)))))
@@ -63,14 +68,13 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
                            (cons (find-package package) (list-subpackages package)))))))
   (defun unbound-exports (package)
     "Report unbound exported symbols for PACKAGE and all its subpackages."
-    ;; TODO: Only SBCL is supported for now.
-    #-sbcl
-    nil
-    #+sbcl
+    ;; NOTE: these implementations throw errors on atypical type specifier, enabling `valid-type-p'
+    #+(or sbcl ccl ecl clisp)
     (let ((report (list-offending-packages package #'list-unbound-exports "unbound exports")))
       (when report
         (error "~a~&Found unbound exported symbols in ~a package~:p."
-               report (length report)))))
+               report (length report))))
+    #-(or sbcl ccl ecl clisp) nil)
 
   (defun undocumented-exports (package)
     "Report undocumented exported symbols for PACKAGE and all its subpackages."
