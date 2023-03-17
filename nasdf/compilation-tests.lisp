@@ -37,24 +37,50 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
 (defun list-subpackages (package)
   (remove-if (lambda (pkg) (not (subpackage-p pkg package))) (list-all-packages)))
 
-(defun unbound-exports (package)
-  "Report unbound exported symbols for PACKAGE and all its subpackages."
-  ;; TODO: Only SBCL is supported for now.
-  #-sbcl
-  nil
-  #+sbcl
-  (let* ((package (find-package package))
-         (report (delete nil
-                         (mapcar (lambda (package)
-                                   (let ((exports (list-unbound-exports package)))
-                                     (when exports
-                                       (list package exports))))
-                                 (cons (find-package package) (list-subpackages package))))))
-    (when report
-      (error "~a~&Found unbound exported symbols in ~a package~:p."
-             report (length report)))))
+(defun list-undocumented-exports (package)
+  (let ((result '()))
+    (do-external-symbols (s (find-package package) result)
+      (unless (or (documentation s 'variable)
+                  (documentation s 'function)
+                  (documentation s 'compiler-macro)
+                  (documentation s 'setf)
+                  (documentation s 'method-combination)
+                  (documentation s 'type)
+                  (documentation s 'structure)
+                  ;; Parenscript macros don't have documentation.
+                  (and (find-package :parenscript)
+                       (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript)))))
+        (push s result)))))
+
+(flet ((list-offending-packages (package export-lister testing-for)
+         (let* ((package (find-package package)))
+           (delete nil
+                   (mapcar (lambda (package)
+                             (logger ";;; Testing ~a for ~a" package testing-for)
+                             (let ((exports (funcall export-lister package)))
+                               (when exports
+                                 (list package exports))))
+                           (cons (find-package package) (list-subpackages package)))))))
+  (defun unbound-exports (package)
+    "Report unbound exported symbols for PACKAGE and all its subpackages."
+    ;; TODO: Only SBCL is supported for now.
+    #-sbcl
+    nil
+    #+sbcl
+    (let ((report (list-offending-packages package #'list-unbound-exports "unbound exports")))
+      (when report
+        (error "~a~&Found unbound exported symbols in ~a package~:p."
+               report (length report)))))
+
+  (defun undocumented-exports (package)
+    "Report undocumented exported symbols for PACKAGE and all its subpackages."
+    (let ((report (list-offending-packages package #'list-undocumented-exports "undocumented exports")))
+      (when report
+        (error "~a~&Found undocumented exported symbols in ~a package~:p."
+               report (length report))))))
 
 (defmethod asdf:perform ((op asdf:test-op) (c nasdf-compilation-test-system))
   (logger "------- STARTING Compilation Testing: ~a" (packages c))
   (mapc #'unbound-exports (packages c))
+  (mapc #'undocumented-exports (packages c))
   (logger "------- ENDING Compilation Testing: ~a" (packages c)))
