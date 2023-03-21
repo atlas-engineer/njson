@@ -10,7 +10,13 @@
     :initarg :packages
     :reader packages
     :documentation "Packages to check for unbound exports.
-Sub-packages are included in the check."))
+Sub-packages are included in the check.")
+   (undocumented-symbols-to-ignore
+    :initform '()
+    :initarg :undocumented-symbols-to-ignore
+    :reader undocumented-symbols-to-ignore
+    :documentation "Symbols to ignore when checking for documentation.
+Likely, slot names (these don't have native `documentation' support."))
   (:documentation "Specialized systems for compilation tests."))
 (import 'nasdf-compilation-test-system :asdf-user)
 
@@ -71,9 +77,25 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
                report (length report))))
     #-(or sbcl ccl ecl clisp) nil)
 
-  (defun undocumented-exports (package)
-    "Report undocumented exported symbols for PACKAGE and all its subpackages."
-    (let ((report (list-offending-packages package #'list-undocumented-exports "undocumented exports")))
+  (defun undocumented-exports (package symbols-to-ignore)
+    "Report undocumented exported symbols for PACKAGE and all its subpackages.
+SYMBOLS-TO-IGNORE are these that should not be tested for
+documentation (e.g. slot names)."
+    (let* ((report (list-offending-packages package #'list-undocumented-exports "undocumented exports"))
+           (report (delete
+                    nil
+                    (mapcar (lambda (rep)
+                              (destructuring-bind (package symbols)
+                                  rep
+                                (let ((really-undocumented-symbols
+                                        (remove-if (lambda (sym)
+                                                     (member (symbol-name sym) symbols-to-ignore
+                                                             :key #'symbol-name :test #'equal))
+                                                   symbols)))
+                                  (if really-undocumented-symbols
+                                      (list package really-undocumented-symbols)
+                                      nil))))
+                            report))))
       (when report
         (error "~a~&Found undocumented exported symbols in ~a package~:p."
                report (length report))))))
@@ -81,5 +103,5 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
 (defmethod asdf:perform ((op asdf:test-op) (c nasdf-compilation-test-system))
   (logger "------- STARTING Compilation Testing: ~a" (packages c))
   (mapc #'unbound-exports (packages c))
-  (mapc #'undocumented-exports (packages c))
+  (mapc #'(lambda (p) (undocumented-exports p (undocumented-symbols-to-ignore c))) (packages c))
   (logger "------- ENDING Compilation Testing: ~a" (packages c)))
