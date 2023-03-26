@@ -42,6 +42,7 @@ Decodes:
 - undefined as :UNDEFINED,
 - false as nil,
 - true as t,
+- arrays as vectors,
 - objects as hash-tables."))
 
 (defgeneric encode-to-stream (object stream)
