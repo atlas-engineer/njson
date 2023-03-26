@@ -83,7 +83,7 @@ that your own methods extending NJSON should expect/return) are:
 - ~:null~ for JSON ~null~.
 - ~t~ for ~true~ and ~nil~ for ~false~.
 - ~:undefined~ for ~undefined~.
-- Lists for JSON arrays.
+- Vectors for JSON arrays.
 - Hash-tables for JSON objects.
 
 With this basic (yet disjoint) set of types, you can easily ~typecase~
