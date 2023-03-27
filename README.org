@@ -129,7 +129,7 @@ Checks the presence of the value under KEY-OR-INDEX in OBJECT.
 #+begin_src lisp
   (njson:jhas "key" (njson:decode "{\"key\": 5}"))
   ;; => T
-  (njson:jget 8 (njson:decode "[0, 1, 2, 3, 4, 5]"))
+  (njson:jhas 8 (njson:decode "[0, 1, 2, 3, 4, 5]"))
   ;; => NIL
 #+end_src
 
