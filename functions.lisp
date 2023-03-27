@@ -6,7 +6,7 @@
 (defgeneric jhas (key-or-index object)
   (:method ((keys sequence) (object t))
     (jhas (elt keys (1- (length keys)))
-          (jget (subseq keys 0 (1- (length keys))) object)))
+          (jhas (subseq keys 0 (1- (length keys))) object)))
   (:method ((index integer) (object sequence))
     (<= 0 index (1- (length object))))
   (:method ((key string) (object hash-table))
