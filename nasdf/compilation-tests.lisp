@@ -49,14 +49,29 @@ A sub-package has a name that starts with that of PACKAGE followed by a '/' sepa
   (remove-if (lambda (pkg) (not (subpackage-p pkg package))) (list-all-packages)))
 
 (defun list-undocumented-exports (package)
-  (let ((result '()))
-    (do-external-symbols (s (find-package package) result)
-      (unless (or (some (lambda (doctype) (documentation s doctype))
-                        '(variable function compiler-macro setf method-combination type structure))
-                  ;; Parenscript macros don't have documentation.
-                  (and (find-package :parenscript)
-                       (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript)))))
-        (push s result)))))
+  (let ((result '())
+        (classes (loop for s being the external-symbol in package
+                       when (find-class s nil)
+                         collect s)))
+    (flet ((accessor-p (symbol)
+             "Check whether the SYMBOL is a slot accessor.
+This is necessary because accessors rarely have documentation and thus
+have to be excluded from the undocumented symbols list.
+Uses the built-in MOP abilities of every Lisp."
+             (and (fboundp symbol)
+                  (typep (symbol-function symbol) 'generic-function)
+                  (some (lambda (class)
+                          (typep (find-method (symbol-function symbol) '() (list (find-class class)) nil)
+                                 '(or standard-accessor-method standard-reader-method standard-writer-method)))
+                        classes))))
+      (do-external-symbols (s (find-package package) result)
+        (unless (or (some (lambda (doctype) (documentation s doctype))
+                          '(variable function compiler-macro setf method-combination type structure))
+                    (accessor-p s)
+                    ;; Parenscript macros don't have documentation.
+                    (and (find-package :parenscript)
+                         (gethash s (symbol-value (find-symbol "*MACRO-TOPLEVEL*" :parenscript)))))
+          (push s result))))))
 
 (flet ((list-offending-packages (package export-lister testing-for)
          (let* ((package (find-package package)))
