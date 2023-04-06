@@ -49,7 +49,7 @@ Are you sure you're indexing the right thing?~]"
   (:documentation "The condition thrown on trying to index non-object/array.")
   (:report (lambda (condition stream)
              (format stream "Non-indexable ~a."
-                     (encode (object condition))))))
+                     (encode (value condition))))))
 
 (define-condition deprecated (warning)
   ((deprecated :initarg :deprecated
