@@ -15,10 +15,6 @@
                (:file "macros")
                (:file "aliases")))
 
-(defsystem "njson/aliases"
-  :description "(Merged into main njson system) Convenient aliases for NJSON operations."
-  :depends-on ("njson"))
-
 (defsystem "njson/submodules"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-submodule-system)
@@ -42,5 +38,5 @@
 (defsystem "njson/tests/compilation"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-compilation-test-system
-  :depends-on ("njson" "njson/aliases")
+  :depends-on ("njson")
   :packages (:njson))
