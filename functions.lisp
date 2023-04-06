@@ -3,6 +3,40 @@
 
 (in-package #:njson)
 
+;; FIXME: CL pathname parsing on SBCL+Linux parses #p"/i\\j" as
+;; #p"/ij", which breaks one of JSON Pointer RFC example. It's bad,
+;; but avoidable with e.g. `make-pathname'.
+(defun parse-pointer-pathname (pointer-pathname)
+  "Parse POINTER-PATHNAME per JSON Pointer rules (https://www.rfc-editor.org/rfc/rfc6901).
+Only supports JSON string representation, not the URL one."
+  (flet ((resolve-tildes (string)
+           (uiop:frob-substrings
+            string '("~1" "~0")
+            (lambda (match frob)
+              (funcall frob (case (elt match 1)
+                              (#\1 "/")
+                              (#\0 "~"))))))
+         (read-until (char stream)
+           "Read from STREAM until encountering CHAR.
+CHAR is left unread on STREAM after returning."
+           (coerce (loop for peeked = (peek-char nil stream nil nil)
+                         until (or (eql char peeked)
+                                   (null peeked))
+                         collect (read-char stream nil nil))
+                   'string))
+         (parse-if-number (string)
+           (if (and (not (uiop:emptyp string))
+                    (every #'digit-char-p string))
+               (parse-integer string)
+               string)))
+    (let* ((name (namestring pointer-pathname)))
+      (with-input-from-string (s name)
+        (loop for char = (read-char s nil nil)
+              while char
+              when (eq #\/ char)
+                collect (parse-if-number (resolve-tildes (read-until #\/ s)))
+              else do (error 'invalid-pointer :pointer pointer-pathname))))))
+
 (defgeneric jhas (key-or-index object)
   (:method ((keys sequence) (object t))
     (jhas (elt keys (1- (length keys)))
@@ -11,6 +45,10 @@
     (<= 0 index (1- (length object))))
   (:method ((key string) (object hash-table))
     (nth-value 1 (gethash key object)))
+  (:method ((pointer pathname) object)
+    (if (equal #p"" pointer)
+        t
+        (jhas (parse-pointer-pathname pointer) object)))
   (:method (key (object null))
     (declare (ignore key))
     (error 'non-indexable :value object))
@@ -27,7 +65,9 @@ The arguments are the same as in `jget'.
 
 Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
-arrays or objects."))
+arrays or objects.
+Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+as key."))
 
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
@@ -39,6 +79,10 @@ arrays or objects."))
     (aref object index))
   (:method ((key string) (object hash-table))
     (gethash key object))
+  (:method ((pointer pathname) object)
+    (if (equal #p"" pointer)
+        object
+        (jget (parse-pointer-pathname pointer) object)))
   (:method (key (object null))
     (declare (ignore key))
     (error 'non-indexable :value object))
@@ -54,12 +98,15 @@ arrays or objects."))
 KEY-OR-INDEX can be
 - an integer (for array indexing),
 - a string (for object keying),
+- a pathname (with JSON Pointer syntax),
 - or a sequence of integers and strings (to index the nested
   structures).
 
 Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
 arrays or objects.
+Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+as key.
 
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
@@ -79,6 +126,11 @@ OBJECT can be JSON array or object, which in Lisp translates to
     (setf (aref object index) value))
   (:method (value (key string) (object hash-table))
     (setf (gethash key object) value))
+  (:method (value (pointer pathname) object)
+    (if (equal #p"" pointer)
+        (error 'invalid-key :key pointer :object object)
+        (setf (jget (parse-pointer-pathname pointer) object)
+              value)))
   (:method (value key (object string))
     (declare (ignore value key))
     (error 'non-indexable :value object))
@@ -93,15 +145,13 @@ OBJECT can be JSON array or object, which in Lisp translates to
     (error 'invalid-key :key key :object object))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
-KEY-OR-INDEX can be
-- an integer (for array indexing),
-- a string (for object keying),
-- or a sequence of integers and strings (to modify the nested
-  structures).
+The arguments are the same as in `jget'.
 
 Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
 arrays or objects.
+Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+as key.
 
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
@@ -115,6 +165,10 @@ OBJECT can be JSON array or object, which in Lisp translates to
           (subseq object (1+ index))))
   (:method ((key string) (object hash-table))
     (remhash key object))
+  (:method ((pointer pathname) object)
+    (if (equal #p"" pointer)
+        (error 'invalid-key :key pointer :object object)
+        (jrem (parse-pointer-pathname pointer) object)))
   (:method (key (object null))
     (declare (ignore key))
     (error 'non-indexable :value object))
@@ -131,7 +185,9 @@ The arguments are the same as in `jget'.
 
 Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
-arrays or objects."))
+arrays or objects.
+Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+as key."))
 
 (defgeneric jcopy (object)
   (:method ((object real)) object)

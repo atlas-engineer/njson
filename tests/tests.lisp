@@ -59,3 +59,21 @@
     ;; TODO: hash-tables
     (assert-false (eq array (jcopy array)))
     (assert-equalp array (jcopy array))))
+
+(define-test jget-json-pointer ()
+  (let ((object (decode (asdf:system-relative-pathname
+                         ;; Taken directly from RFC 6901.
+                         :njson "tests/pointer-test.json"))))
+    (assert-eq object (jget #p"" object))
+    (assert-equalp #("bar" "baz") (jget #p"/foo" object))
+    (assert-equal "bar" (jget #p"/foo/0" object))
+    (assert-eql 0 (jget #p"/" object))
+    (assert-eql 1 (jget #p"/a~1b" object))
+    (assert-eql 2 (jget #p"/c%d" object))
+    (assert-eql 3 (jget #p"/e^f" object))
+    (assert-eql 4 (jget #p"/g|h" object))
+    ;; FIXME: broken due to pathname processing.
+    ;; (assert-eql 5 (jget #p"/i\\j" object))
+    (assert-eql 6 (jget #p"/k\"l" object))
+    (assert-eql 7 (jget #p"/ " object))
+    (assert-eql 8 (jget #p"/m~0n" object))))

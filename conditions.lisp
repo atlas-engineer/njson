@@ -51,6 +51,14 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Non-indexable ~a."
                      (encode (value condition))))))
 
+(define-condition invalid-pointer (error)
+  ((pointer :initarg :pointer
+            :accessor pointer))
+  (:documentation "Condition thrown when trying to index an object with invalid pointer.")
+  (:report (lambda (condition stream)
+             (format stream "Pointer ~S is invalid."
+                     (pointer condition)))))
+
 (define-condition deprecated (warning)
   ((deprecated :initarg :deprecated
                :accessor deprecated)

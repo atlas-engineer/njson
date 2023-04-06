@@ -7,7 +7,7 @@
    ;; Conditions
    #:decode-from-stream-not-implemented
    #:encode-to-stream-not-implemented
-   #:invalid-key #:non-indexable
+   #:invalid-key #:non-indexable #:invalid-pointer
    ;; Main generics
    #:decode #:encode
    ;; Generics to implement for backends.
