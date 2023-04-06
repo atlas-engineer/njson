@@ -22,7 +22,7 @@
   (assert-typep 'vector (decode "[]"))
   (assert-equalp #(nil) (decode "[false]")))
 
-;;; TODO: jget, jrem, jhas tests.
+;;; TODO: jget, jrem tests.
 
 (define-test from-file ()
   (destructuring-bind (simple-1 float-3.8 true false undefined null

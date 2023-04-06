@@ -37,38 +37,6 @@ CHAR is left unread on STREAM after returning."
                 collect (parse-if-number (resolve-tildes (read-until #\/ s)))
               else do (error 'invalid-pointer :pointer pointer-pathname))))))
 
-(defgeneric jhas (key-or-index object)
-  (:method ((keys sequence) (object t))
-    (jhas (elt keys (1- (length keys)))
-          (jhas (subseq keys 0 (1- (length keys))) object)))
-  (:method ((index integer) (object array))
-    (<= 0 index (1- (length object))))
-  (:method ((key string) (object hash-table))
-    (nth-value 1 (gethash key object)))
-  (:method ((pointer pathname) object)
-    (if (equal #p"" pointer)
-        t
-        (jhas (parse-pointer-pathname pointer) object)))
-  (:method (key (object null))
-    (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method (key (object string))
-    (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method ((index string) (object array))
-    (error 'invalid-key :key index :object object))
-  (:method ((key integer) (object hash-table))
-    (error 'invalid-key :key key :object object))
-  (:documentation "Check the presence of the value under KEY-OR-INDEX in OBJECT.
-
-The arguments are the same as in `jget'.
-
-Throws `invalid-key' if using the wrong index type.
-Throws `non-indexable' when trying to index something other than JSON
-arrays or objects.
-Throws `invalid-pointer' when using JSON Pointer with invalid syntax
-as key."))
-
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
     (if (= 1 (length keys))
@@ -76,12 +44,13 @@ as key."))
         (jget (subseq keys 1)
               (jget (elt keys 0) object))))
   (:method ((index integer) (object array))
-    (aref object index))
+    (values (aref object index)
+            (<= 0 index (1- (length object)))))
   (:method ((key string) (object hash-table))
     (gethash key object))
   (:method ((pointer pathname) object)
     (if (equal #p"" pointer)
-        object
+        (values object t)
         (jget (parse-pointer-pathname pointer) object)))
   (:method (key (object null))
     (declare (ignore key))

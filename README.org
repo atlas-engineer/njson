@@ -113,24 +113,13 @@ The helpers are:
 
 *** FUNCTION njson:jget (alias: njson/aliases:get)
 
-Gets the value from the JSON object/array indexed by a certain key
+Gets the value from the JSON object/array indexed by a certain key. Note that the second value is a boolean denoting whether the entry under key is found (like in ~gethash~).
 
 #+begin_src lisp
   (njson:jget "key" (njson:decode "{\"key\": 5}"))
-  ;; => 5
+  ;; => 5, T
   (njson:jget 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
-  ;; => 5
-#+end_src
-
-*** FUNCTION njson:jhas (alias: njson/aliases:has)
-
-Checks the presence of the value under KEY-OR-INDEX in OBJECT.
-
-#+begin_src lisp
-  (njson:jhas "key" (njson:decode "{\"key\": 5}"))
-  ;; => T
-  (njson:jhas 8 (njson:decode "[0, 1, 2, 3, 4, 5]"))
-  ;; => NIL
+  ;; => 5, T
 #+end_src
 
 *** FUNCTION njson:jrem (alias: njson/aliases:rem)

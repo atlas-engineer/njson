@@ -14,7 +14,7 @@
    #:decode-from-stream #:decode-from-string #:decode-from-file
    #:encode-to-stream #:encode-to-string #:encode-to-file
    ;; Helpers
-   #:jhas #:jget #:jrem #:jcopy
+   #:jget #:jrem #:jcopy
    #:jtruep #:jtrue-p #:jtrue?
    ;; Macro helpers
    #:jif #:jwhen #:jor #:jand #:jnot)
