@@ -14,11 +14,10 @@
    #:decode-from-stream #:decode-from-string #:decode-from-file
    #:encode-to-stream #:encode-to-string #:encode-to-file
    ;; Helpers
-   #:jhas #:has_ #:jget #:get_ #:jrem #:rem_ #:jcopy #:copy_
-   #:jtruep #:jtrue-p #:jtrue? #:truep #:true-p #:true?
+   #:jhas #:jget #:jrem #:jcopy
+   #:jtruep #:jtrue-p #:jtrue?
    ;; Macro helpers
-   #:jif #:if_ #:jwhen #:when_
-   #:jor #:or_ #:jand #:and_ #:jnot #:not_)
+   #:jif #:jwhen #:jor #:jand #:jnot)
   (:documentation "NJSON is a convenience library for JSON handling. Important functions/APIs:
 - `njson:encode' and `njson:decode' as universal (en|de)coding functions working
   on strings, streams, and pathnames.

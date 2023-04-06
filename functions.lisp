@@ -29,13 +29,6 @@ Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
 arrays or objects."))
 
-(defun has_ (key-or-index object)
-  "Check the presence of the value under KEY-OR-INDEX in OBJECT.
-
-For generic implementation and getails, see `jhas'."
-  (warn 'deprecated :deprecated 'has_ :replacement "NJSON/ALIASES:HAS")
-  (jhas key-or-index object))
-
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
     (if (= 1 (length keys))
@@ -113,23 +106,6 @@ arrays or objects.
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
 
-(defun get_ (key-or-index object)
-  "Get the value at KEY-OR-INDEX in OBJECT.
-
-OBJECT can be JSON array or object, which in Lisp translates to
-`array' or `hash-table'.
-
-For generic implementation and getails, see `jget'."
-  (warn 'deprecated :deprecated 'get_ :replacement "NJSON/ALIASES:GET")
-  (jget key-or-index object))
-
-(defun (setf get_) (value key-or-index object)
-  "Set the value at KEY-OR-INDEX in OBJECT.
-
-For generic implementation and getails, see `jget'."
-  (warn 'deprecated :deprecated 'get_ :replacement "NJSON/ALIASES:get")
-  (setf (jget key-or-index object) value))
-
 (defgeneric jrem (key-or-index object)
   (:method ((keys sequence) (object t))
     (jrem (elt keys (1- (length keys)))
@@ -157,13 +133,6 @@ Throws `invalid-key' if using the wrong index type.
 Throws `non-indexable' when trying to index something other than JSON
 arrays or objects."))
 
-(defun rem_ (key-or-index object)
-  "Remove the value at KEY-OR-INDEX of OBJECT.
-
-For generic implementation and getails, see `jrem'."
-  (warn 'deprecated :deprecated 'rem_ :replacement "NJSON/ALIASES:REM")
-  (jrem key-or-index object))
-
 (defgeneric jcopy (object)
   (:method ((object real)) object)
   (:method ((object (eql :null))) object)
@@ -180,13 +149,6 @@ For generic implementation and getails, see `jrem'."
                object)
       new))
   (:documentation "Copy the OBJECT, potentially creating an identical one."))
-
-(defun copy_ (object)
-  "Copy the OBJECT, potentially creating an identical one.
-
-For generic implementation and getails, see `jcopy'."
-  (warn 'deprecated :deprecated 'copy_ :replacement "NJSON/ALIASES:COPY")
-  (jcopy object))
 
 (defgeneric jtruep (object)
   (:method (object)
@@ -206,22 +168,6 @@ For generic implementation and getails, see `jcopy'."
 (dolist (symbol '(jtrue-p jtrue?))
   (setf (symbol-function symbol) #'jtruep))
 
-(macrolet ((defalias (name)
-             `(defun ,name (object)
-                "Test OBJECT for truthiness in JSON terms.
-For generic implementation, see `jtruep'."
-                (warn 'deprecated :deprecated (quote ,name) :replacement "NJSON/ALIASES:TRUE")
-                (jtruep object))))
-  (defalias truep)
-  (defalias true-p)
-  (defalias true?))
-
 (defun jnot (arg)
   "JSON-aware version of `cl:not'."
   (not (jtruep arg)))
-
-(defun not_ (arg)
-  "JSON-aware version of `cl:not'.
-Alias for `jnot'."
-  (warn 'deprecated :deprecated 'not_ :replacement "NJSON/ALIASES:NOT")
-  (jnot arg))
