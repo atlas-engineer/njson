@@ -43,7 +43,7 @@ Are you sure you're indexing the right thing?~]"
             (sequence 1)
             (t 2)))
 
-(define-condition non-indexable ()
+(define-condition non-indexable (error)
   ((value :initarg :value
           :accessor value))
   (:documentation "The condition thrown on trying to index non-object/array.")
