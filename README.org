@@ -122,19 +122,6 @@ Gets the value from the JSON object/array indexed by a certain key. Note that th
   ;; => 5, T
 #+end_src
 
-*** FUNCTION njson:jrem (alias: njson/aliases:rem)
-
-Removes the value from the JSON object/array indexed by a certain key
-
-#+begin_src lisp
-  (defvar data (njson:decode "{\"key\": 5}"))
-  data
-  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 1 {1007F2F1A3}>
-  (njson:jrem "key" data)
-  data
-  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 0 {1007F2F1A3}>
-#+end_src
-
 *** FUNCTION njson:jcopy (alias: njson/aliases:copy)
 
 Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object.

@@ -5,7 +5,7 @@
   (:use #:common-lisp)
   (:export
    #:decode #:encode
-   #:get #:rem #:copy #:true #:truep #:true?
+   #:get #:copy #:true #:truep #:true?
    #:if #:when #:or #:and #:not)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
@@ -17,7 +17,6 @@ Perfect with j: package-local-nickname, disastrous when :use-d."))
       (symbol-function 'njson/aliases:encode) #'njson:encode
       (symbol-function 'njson/aliases:get) #'njson:jget
       (fdefinition '(setf njson/aliases:get)) (fdefinition '(setf njson:jget))
-      (symbol-function 'njson/aliases:rem) #'njson:jrem
       (symbol-function 'njson/aliases:copy) #'njson:jcopy
       (symbol-function 'njson/aliases:true) #'njson:jtruep
       (symbol-function 'njson/aliases:truep) #'njson:jtruep

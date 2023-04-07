@@ -125,39 +125,6 @@ as key.
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
 
-(defgeneric jrem (key-or-index object)
-  (:method ((keys sequence) (object t))
-    (jrem (elt keys (1- (length keys)))
-          (jget (subseq keys 0 (1- (length keys))) object)))
-  (:method ((index integer) (object array))
-    (setf (subseq object index)
-          (subseq object (1+ index))))
-  (:method ((key string) (object hash-table))
-    (remhash key object))
-  (:method ((pointer pathname) object)
-    (if (equal #p"" pointer)
-        (error 'invalid-key :key pointer :object object)
-        (jrem (parse-pointer-pathname pointer) object)))
-  (:method (key (object null))
-    (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method (key (object string))
-    (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method ((index string) (object array))
-    (error 'invalid-key :key index :object object))
-  (:method ((key integer) (object hash-table))
-    (error 'invalid-key :key key :object object))
-  (:documentation "Remove the value at KEY-OR-INDEX of OBJECT.
-
-The arguments are the same as in `jget'.
-
-Throws `invalid-key' if using the wrong index type.
-Throws `non-indexable' when trying to index something other than JSON
-arrays or objects.
-Throws `invalid-pointer' when using JSON Pointer with invalid syntax
-as key."))
-
 (defgeneric jcopy (object)
   (:method ((object real)) object)
   (:method ((object (eql :null))) object)
