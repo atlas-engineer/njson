@@ -133,14 +133,18 @@ OBJECT can be JSON array or object, which in Lisp translates to
   (:method ((object null)) object)
   (:method ((object string)) object)
   (:method ((object array))
-    (map 'vector #'jcopy object))
+    (make-array (length object)
+                :adjustable t
+                :fill-pointer t
+                :initial-contents (map 'vector #'jcopy object)))
   (:method ((object hash-table))
     (let ((new (make-hash-table :test 'equal)))
       (maphash (lambda (key val)
                  (setf (gethash key new) val))
                object)
       new))
-  (:documentation "Copy the OBJECT, potentially creating an identical one."))
+  (:documentation "Copy the OBJECT, potentially creating an identical one.
+Coerce all JSON arrays to adjustable vectors."))
 
 (defgeneric jtruep (object)
   (:method (object)
