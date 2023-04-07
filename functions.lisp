@@ -150,16 +150,16 @@ Coerce all JSON arrays to adjustable vectors."))
   (:method (object)
     (declare (ignore object))
     t)
-  ;; TODO: A method on numbers, checking for zero?
-  (:method ((object null))
-    nil)
-  (:method ((object array))
-    (not (uiop:emptyp object)))
-  (:method ((object hash-table))
-    (plusp (hash-table-count object)))
   (:method ((object symbol))
-    (not (member object (list nil :null))))
-  (:documentation "Test OBJECT for truthiness in JSON terms."))
+    (not (member object (list nil :null :undefined))))
+  (:documentation "Test OBJECT for truthiness in JSON terms.
+
+Recognize all the values true, except for null, undefined, and
+false. This is to make the transition from JSON to Lisp (3+ false
+values -> 1 false value) smoother.
+
+Unlike JavaScript, empty strings and zero are not false (because this
+behavior is confusing)."))
 
 (dolist (symbol '(jtrue-p jtrue?))
   (setf (symbol-function symbol) #'jtruep))
