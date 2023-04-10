@@ -96,8 +96,8 @@ KEY-OR-INDEX can be
 - an integer (for array indexing),
 - a string (for object keying),
 - a pathname (with JSON Pointer syntax),
-- or a sequence of integers and strings (to index the nested
-  structures).
+- a sequence of integers and strings (to index the nested structures).
+- an empty sequence (to match the whole object).
 
 If ERROR-P:
 - Throws `no-such-key' when the key is not present in object.
@@ -122,9 +122,13 @@ OBJECT can be JSON array or object, which in Lisp translates to
 (defgeneric (setf jget) (value key-or-index object &optional error-p)
   (:method (value (keys sequence) (object t) &optional error-p)
     (declare (ignore error-p))
-    (setf (jget (elt keys (1- (length keys)))
-                (jget (subseq keys 0 (1- (length keys))) object))
-          value))
+    (case (length keys)
+      (0 (cerror "Don't set the value"
+                 'invalid-key :key keys :object object))
+      (1 (setf (jget (elt keys 0) object) value))
+      (t (setf (jget (elt keys (1- (length keys)))
+                     (jget (subseq keys 0 (1- (length keys))) object))
+               value))))
   (:method (value (index integer) (object array))
     (setf (aref object index) value))
   (:method (value (key string) (object hash-table))
@@ -183,7 +187,10 @@ OBJECT can be JSON array or object, which in Lisp translates to
               'non-indexable :value object)))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
-The arguments are the same as in `jget'.
+The arguments are the same as in `jget', except KEY-OR-INDEX cannot be
+an empty sequence (because setting the object itself to a new value is
+not possible in CL, unless it's a place, which is not guaranteed for
+`jget' arguments).
 
 If ERROR-P:
 - Throws `no-such-key' when the key is not present in object.
