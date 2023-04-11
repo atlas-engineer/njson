@@ -33,35 +33,63 @@ CHAR is left unread on STREAM after returning."
       (with-input-from-string (s name)
         (loop for char = (read-char s nil nil)
               while char
-              when (eq #\/ char)
-                collect (parse-if-number (resolve-tildes (read-until #\/ s)))
-              else do (error 'invalid-pointer :pointer pointer-pathname))))))
+              unless (eq #\/ char)
+                do (cerror "Use the pointer anyway"
+                           'invalid-pointer :pointer pointer-pathname)
+              collect (parse-if-number (resolve-tildes (read-until #\/ s))))))))
 
-(defgeneric jget (key-or-index object)
-  (:method ((keys sequence) (object t))
-    (if (= 1 (length keys))
-        (jget (elt keys 0) object)
-        (jget (subseq keys 1)
-              (jget (elt keys 0) object))))
-  (:method ((index integer) (object array))
-    (values (aref object index)
-            (<= 0 index (1- (length object)))))
-  (:method ((key string) (object hash-table))
-    (gethash key object))
-  (:method ((pointer pathname) object)
+(defgeneric jget (key-or-index object &optional error-p)
+  (:method ((keys sequence) (object t) &optional error-p)
+    (declare (ignore error-p))
+    (case (length keys)
+      (0 object)
+      (1 (jget (elt keys 0) object))
+      (t (jget (subseq keys 1)
+               (jget (elt keys 0) object)))))
+  (:method ((index integer) (object array) &optional error-p)
+    (cond
+      ((<= 0 index (1- (length object)))
+       (values (aref object index) t))
+      (error-p
+       (cerror "Ignore key absence, return nothing"
+               'no-such-key :object object :key index)
+       (values nil nil))
+      (t (values nil nil))))
+  (:method ((key string) (object hash-table) &optional error-p)
+    (cond
+      ((nth-value 1 (gethash key object))
+       (gethash key object))
+      (error-p
+       (cerror "Ignore key absence, return nothing"
+               'no-such-key :object object :key key)
+       (values nil nil))
+      (t (values nil nil))))
+  (:method ((pointer pathname) object &optional error-p)
+    (declare (ignore error-p))
     (if (equal #p"" pointer)
         (values object t)
         (jget (parse-pointer-pathname pointer) object)))
-  (:method (key (object null))
+  (:method ((index string) (object array) &optional error-p)
+    (when error-p
+      (cerror "Return nothing"
+              'invalid-key :key index :object object)))
+  (:method ((key integer) (object hash-table) &optional error-p)
+    (when error-p
+      (cerror "Return nothing"
+              'invalid-key :key key :object object))
+    (values nil nil))
+  (:method (key object &optional error-p)
     (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method (key (object string))
+    (when error-p
+      (cerror "Return nothing"
+              'non-indexable :value object))
+    (values nil nil))
+  (:method :around (key (object string) &optional error-p)
     (declare (ignore key))
-    (error 'non-indexable :value object))
-  (:method ((index string) (object array))
-    (error 'invalid-key :key index :object object))
-  (:method ((key integer) (object hash-table))
-    (error 'invalid-key :key key :object object))
+    (when error-p
+      (cerror "Return nothing"
+              'non-indexable :value object))
+    (values nil nil))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be
@@ -71,11 +99,16 @@ KEY-OR-INDEX can be
 - or a sequence of integers and strings (to index the nested
   structures).
 
-Throws `invalid-key' if using the wrong index type.
-Throws `non-indexable' when trying to index something other than JSON
-arrays or objects.
-Throws `invalid-pointer' when using JSON Pointer with invalid syntax
-as key.
+If ERROR-P:
+- Throws `no-such-key' when the key is not present in object.
+- Throws `invalid-key' if using the wrong index type.
+- Throws `non-indexable' when trying to index something other than
+  JSON arrays or objects.
+- Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+  as key.
+
+If not ERROR-P: does nothing and returns nothing in all the
+exceptional cases.
 
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
@@ -86,8 +119,9 @@ you can use
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
 
-(defgeneric (setf jget) (value key-or-index object)
-  (:method (value (keys sequence) (object t))
+(defgeneric (setf jget) (value key-or-index object &optional error-p)
+  (:method (value (keys sequence) (object t) &optional error-p)
+    (declare (ignore error-p))
     (setf (jget (elt keys (1- (length keys)))
                 (jget (subseq keys 0 (1- (length keys))) object))
           value))
@@ -106,21 +140,61 @@ OBJECT can be JSON array or object, which in Lisp translates to
   (:method (value key (object null))
     (declare (ignore value key))
     (error 'non-indexable :value object))
-  (:method (value (index string) (object array))
+  (:method (value (index integer) (object array) &optional error-p)
+    (cond
+      ((<= 0 index (1- (length object)))
+       (setf (aref object index) value))
+      (error-p
+       (cerror "Don't set the value"
+               'no-such-key :object object :key index))))
+  (:method (value (key string) (object hash-table) &optional error-p)
+    (cond
+      ((nth-value 1 (gethash key object))
+       (setf (gethash key object) value))
+      (error-p
+       (cerror "Set the value anyway"
+               'no-such-key :object object :key key)
+       (setf (gethash key object) value))))
+  (:method (value (pointer pathname) object &optional error-p)
+    (if (and error-p (equal #p"" pointer))
+        (cerror "Don't set the value"
+                'invalid-key :key pointer :object object)
+        (setf (jget (parse-pointer-pathname pointer) object)
+              value)))
+  (:method (value (index string) (object array) &optional error-p)
     (declare (ignore value))
-    (error 'invalid-key :key index :object object))
-  (:method (value (key integer) (object hash-table))
+    (when error-p
+      (cerror "Don't set the value"
+              'invalid-key :key index :object object)) )
+  (:method (value (key integer) (object hash-table) &optional error-p)
     (declare (ignore value))
-    (error 'invalid-key :key key :object object))
+    (when error-p
+      (cerror "Don't set the value"
+              'invalid-key :key key :object object)))
+  (:method (value key (object t) &optional error-p)
+    (declare (ignore value key))
+    (when error-p
+      (cerror "Don't set the value"
+              'non-indexable :value object)))
+  (:method :around (value key (object string) &optional error-p)
+    (declare (ignore value key))
+    (when error-p
+      (cerror "Do nothing"
+              'non-indexable :value object)))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
 The arguments are the same as in `jget'.
 
-Throws `invalid-key' if using the wrong index type.
-Throws `non-indexable' when trying to index something other than JSON
-arrays or objects.
-Throws `invalid-pointer' when using JSON Pointer with invalid syntax
-as key.
+If ERROR-P:
+- Throws `no-such-key' when the key is not present in object.
+- Throws `invalid-key' if using the wrong index type.
+- Throws `non-indexable' when trying to index something other than
+  JSON arrays or objects.
+- Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+  as key.
+
+If not ERROR-P: does nothing and returns nothing in all the
+exceptional cases.
 
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))

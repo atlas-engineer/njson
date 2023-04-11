@@ -82,6 +82,17 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Non-indexable ~a."
                      (json-short-print (value condition))))))
 
+(define-condition no-such-key (error)
+  ((key :initarg :key
+        :accessor key)
+   (object :initarg :object
+           :accessor object))
+  (:documentation "Condition thrown when trying to index (`jget') an object with the key it doesn't have.")
+  (:report (lambda (condition stream)
+             (format stream "JSON ~[object~;array~;value~] ~a doesn't have ~s key."
+                     (type-num (object condition)) (json-short-print (object condition))
+                     (key condition)))))
+
 (define-condition invalid-pointer (error)
   ((pointer :initarg :pointer
             :accessor pointer))
