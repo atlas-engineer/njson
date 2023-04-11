@@ -101,6 +101,20 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Pointer ~S is invalid."
                      (pointer condition)))))
 
+(define-condition value-mismatch (error)
+  ((expected :initarg :expected
+             :accessor expected)
+   (actual :initarg :actual
+           :accessor actual)
+   (object :initarg :object
+           :accessor object))
+  (:documentation "Condition thrown when getting a value not matching `jbind'/`jmatch' specification.")
+  (:report (lambda (condition stream)
+             (format stream "Expected ~a in object ~a and got ~a."
+                     (json-short-print (expected condition))
+                     (json-short-print (object condition))
+                     (json-short-print (actual condition))))))
+
 (define-condition deprecated (warning)
   ((deprecated :initarg :deprecated
                :accessor deprecated)

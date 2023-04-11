@@ -7,7 +7,7 @@
    ;; Conditions
    #:decode-from-stream-not-implemented
    #:encode-to-stream-not-implemented
-   #:invalid-key #:non-indexable #:no-such-key #:invalid-pointer
+   #:invalid-key #:non-indexable #:no-such-key #:value-mismatch #:invalid-pointer
    ;; Main generics
    #:decode #:encode
    ;; Generics to implement for backends.
@@ -18,7 +18,9 @@
    #:jtruep #:jtrue-p #:jtrue?
    #:ensure-array #:ensure-object
    ;; Macro helpers
-   #:jif #:jwhen #:jor #:jand #:jnot)
+   #:jif #:jwhen #:jor #:jand #:jnot
+   ;; Binding macros.
+   #:jbind #:jmatch)
   (:documentation "NJSON is a convenience library for JSON handling. Important functions/APIs:
 - `njson:encode' and `njson:decode' as universal (en|de)coding functions working
   on strings, streams, and pathnames.

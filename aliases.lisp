@@ -7,7 +7,8 @@
    #:decode #:encode
    #:get #:copy #:true #:truep #:true?
    #:keys #:ensure-array #:ensure-object
-   #:if #:when #:or #:and #:not)
+   #:if #:when #:or #:and #:not
+   #:bind #:match)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
 Perfect with j: package-local-nickname, disastrous when :use-d."))
@@ -48,3 +49,11 @@ If TEST is `njson:jtruep' evaluate BODY."
 (defun njson/aliases:not (arg)
   "JSON-aware version of `cl:not'."
   (njson:jnot arg))
+
+(defmacro njson/aliases:bind (&rest args)
+  "Wrapper around `njson:jbind'."
+  `(njson:jbind ,@args))
+
+(defmacro njson/aliases:match (&rest args)
+  "Wrapper around `njson:jmatch'."
+  `(njson:jmatch ,@args))

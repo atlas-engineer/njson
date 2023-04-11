@@ -139,3 +139,75 @@
   (let ((array-object (ensure-object "numbers" #(1 2 3 4 82))))
     (assert-typep 'hash-table array-object)
     (assert-equalp #(1 2 3 4 82) (jget "numbers" array-object))))
+
+(define-test jbind-patterns ()
+  (let ((baker (decode (asdf:system-relative-pathname :njson "tests/baker.json"))))
+    (macrolet ((assert-bind (path)
+                 `(assert-true
+                   (njson:jbind ,path
+                       baker
+                     t)))
+               (assert-mismatch (path)
+                 `(assert-error
+                   'value-mismatch
+                   (njson:jbind ,path
+                       baker))))
+      (assert-bind #())
+      (assert-bind #(()))
+      (assert-mismatch ())
+      (assert-typep
+       'hash-table
+       (njson:jbind #(("data" data))
+           baker
+         data))
+      (assert-bind #(("data" ("children" #()))))
+      (assert-bind #(("data" ("children" #(())))))
+      (assert-typep
+       'hash-table
+       (njson:jbind #(("data" ("children" #(("data" data)))))
+           baker
+         data))
+      (assert-bind #(("data" ("children" #(("data" ()))))))
+      (assert-equal
+       "Henry Baker: Meta-circular semantics for Common Lisp special forms"
+       (njson:jbind #(("data" ("children" #(("data" ("title" title))))))
+           baker
+         title))
+      (assert-bind #(("data" ("children" #(("kind" "t3"))))))
+      (assert-mismatch #(("data" ("children" ()))))
+      (assert-mismatch #(("data" ("children" #(("kind" 5))))))
+      (assert-bind #(("data" ("after" :null))))
+      (assert-mismatch #(("data" ("after" "not null"))))
+      (assert-bind #(("data" ("dist" 1))))
+      (assert-mismatch #(("data" ("dist" 1.000001))))
+      (assert-bind #(("data" ("children" #(("data" ("upvote_ratio" 0.59)))))))
+      (assert-mismatch #(("data" ("children" #(("data" ("upvote_ratio" 0.6)))))))
+      (assert-bind #(("data" ("children" #(("data" ("hide_score" :false)))))))
+      (assert-mismatch #(("data" ("children" #(("data" ("hide_score" :true)))))))
+      (assert-bind #(("data" ("children" #(("data" ("is_robot_indexable" :true)))))))
+      (assert-mismatch #(("data" ("children" #(("data" ("is_robot_indexable" :false)))))))
+      (assert-bind #(("data" ("modhash" ""))))
+      (assert-mismatch #(("data" ("modhash" "non-empty-string"))))
+      (assert-mismatch #(("data" ("modhash" #()))))
+      (assert-bind
+       #(("data"
+          ("children"
+           #(("data" ("title"
+                      "Henry Baker: Meta-circular semantics for Common Lisp special forms")))))))
+      (assert-error
+       'type-error
+       (macroexpand
+        '(jbind #(("data" ("modhash" :invalid-keword)))
+          baker)))
+      (assert-true
+       (jbind true
+           t
+         true))
+      (assert-false
+       (jbind false
+           nil
+         nil))
+      (assert-equal
+       "hello" (jbind string
+                   "hello"
+                 string)))))
