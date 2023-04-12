@@ -97,5 +97,6 @@
     (assert-error 'invalid-key (setf (jget 20 (jget 9 object) t) nil))
     (assert-error 'invalid-key (setf (jget "bar" (jget 8 object) t) nil))
     (assert-error 'invalid-key (setf (jget #p"" (jget 8 object) t) nil))
+    (assert-error 'invalid-key (setf (jget #() (jget 8 object) t) nil))
     (assert-error 'non-indexable (setf (jget 20 200.3 t) 10))
     (assert-error 'non-indexable (setf (jget 20 "foo" t) nil))))

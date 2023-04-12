@@ -97,7 +97,7 @@ KEY-OR-INDEX can be
 - a string (for object keying),
 - a pathname (with JSON Pointer syntax),
 - a sequence of integers and strings (to index the nested structures).
-- an empty sequence (to match the whole object).
+- an empty sequence/pathname (to match the whole object).
 
 If ERROR-P:
 - Throws `no-such-key' when the key is not present in object.
@@ -158,7 +158,8 @@ OBJECT can be JSON array or object, which in Lisp translates to
       (error-p
        (cerror "Set the value anyway"
                'no-such-key :object object :key key)
-       (setf (gethash key object) value))))
+       (setf (gethash key object) value))
+      (t (setf (gethash key object) value))))
   (:method (value (pointer pathname) object &optional error-p)
     (if (and error-p (equal #p"" pointer))
         (cerror "Don't set the value"
@@ -188,9 +189,9 @@ OBJECT can be JSON array or object, which in Lisp translates to
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
 The arguments are the same as in `jget', except KEY-OR-INDEX cannot be
-an empty sequence (because setting the object itself to a new value is
-not possible in CL, unless it's a place, which is not guaranteed for
-`jget' arguments).
+an empty pathname/sequence (because setting the object itself to a new
+value is not possible in CL, unless it's a place, which is not
+guaranteed for `jget' arguments).
 
 If ERROR-P:
 - Throws `no-such-key' when the key is not present in object.
