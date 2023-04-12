@@ -6,6 +6,7 @@
   (:export
    #:decode #:encode
    #:get #:copy #:true #:truep #:true?
+   #:keys #:ensure-array #:ensure-object
    #:if #:when #:or #:and #:not)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
@@ -20,7 +21,10 @@ Perfect with j: package-local-nickname, disastrous when :use-d."))
       (symbol-function 'njson/aliases:copy) #'njson:jcopy
       (symbol-function 'njson/aliases:true) #'njson:jtruep
       (symbol-function 'njson/aliases:truep) #'njson:jtruep
-      (symbol-function 'njson/aliases:true?) #'njson:jtruep)
+      (symbol-function 'njson/aliases:true?) #'njson:jtruep
+      (symbol-function 'njson/aliases:keys) #'njson:jkeys
+      (symbol-function 'njson/aliases:ensure-array) #'njson:ensure-array
+      (symbol-function 'njson/aliases:ensure-object) #'njson:ensure-object)
 
 (defmacro njson/aliases:if (test then &optional (else nil))
   "JSON-aware version of `cl:if'.

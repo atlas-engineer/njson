@@ -14,8 +14,9 @@
    #:decode-from-stream #:decode-from-string #:decode-from-file
    #:encode-to-stream #:encode-to-string #:encode-to-file
    ;; Helpers
-   #:jget #:jcopy
+   #:jget #:jcopy #:jkeys
    #:jtruep #:jtrue-p #:jtrue?
+   #:ensure-array #:ensure-object
    ;; Macro helpers
    #:jif #:jwhen #:jor #:jand #:jnot)
   (:documentation "NJSON is a convenience library for JSON handling. Important functions/APIs:

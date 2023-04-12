@@ -149,6 +149,37 @@ Copies the whole thing it's passed, no mater the nesting, into a fresh new equal
   ;; => 5, T
 #+end_src
 
+*** FUNCTION njson:jkeys (alias: njson/aliases:keys)
+
+Gets all the keys present in the passed object. Integer keys for arrays, string keys for object, error for anything else.
+#+begin_src lisp
+  (njson:jkeys (njson:decode "{\"a\": 1, \"b\": 2}"))
+  ;; ("a" "b")
+  (njson:jkeys (njson:decode "[\"a\", \"b\"]"))
+  ;; (0 1)
+#+end_src
+
+*** FUNCTIONS njson:ensure-array, njson:ensure-object (aliases: njson/aliases:ensure-array, njson/aliases:ensure-object)
+
+Ensure that the passed object is turned into array or object (respectively). If ~:convert-objects~ is provided in ~njson:ensure-array~, it creates an array with all the values of object, discarding keys.
+#+begin_src lisp
+  (njson:ensure-array #(1 2 3))
+  ;; #(1 2 3)
+  (njson:ensure-array 3)
+  ;; #(3)
+  (njson:ensure-array (njson:decode "{\"a\": 3}"))
+  ;; #(#<hash-table>)
+  (njson:ensure-array (njson:decode "{\"a\": 3}") :convert-objects t)
+  ;; #(3)
+
+  (njson:ensure-object "key" #<hash-table>)
+  ;; #<hash-table>
+  (njson:ensure-object "key" 3)
+  ;; #<hash-table> with "key": 3
+  (njson:ensure-object "key" #(1 2 3))
+  ;; #<hash-table> with "key": #(1 2 3)
+#+end_src
+
 *** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
 
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON.

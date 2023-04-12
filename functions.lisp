@@ -228,6 +228,22 @@ OBJECT can be JSON array or object, which in Lisp translates to
   (:documentation "Copy the OBJECT, potentially creating an identical one.
 Coerce all JSON arrays to adjustable vectors."))
 
+(defgeneric jkeys (object)
+  (:method ((object vector))
+    (loop for i from 0 below (length object)
+          collect i))
+  (:method ((object string))
+    (cerror "Return nothing"
+            'non-indexable :value object))
+  (:method ((object hash-table))
+    (loop for key being the hash-key of object
+          collect key))
+  (:method ((object t))
+    (cerror "Return nothing"
+            'non-indexable :value object))
+  (:documentation "Get keys to index OBJECT with, as a list of integers/strings.
+If the OBJECT is not a JSON array/object, throws `non-indexable'."))
+
 (defgeneric jtruep (object)
   (:method (object)
     (declare (ignore object))
@@ -249,3 +265,40 @@ behavior is confusing)."))
 (defun jnot (arg)
   "JSON-aware version of `cl:not'."
   (not (jtruep arg)))
+
+(defgeneric ensure-array (object &key &allow-other-keys)
+  (:method ((object hash-table) &key convert-objects &allow-other-keys)
+    (if convert-objects
+        (make-array (hash-table-count object)
+                    :adjustable t
+                    :fill-pointer t
+                    :initial-contents (loop for key in (jkeys object)
+                                            collect (jget key object)))
+        (make-array 1 :initial-contents (list object))))
+  (:method ((object vector) &key &allow-other-keys)
+    object)
+  (:method ((object string) &key &allow-other-keys)
+    (make-array 1 :adjustable t :fill-pointer t :initial-contents (list object)))
+  (:method ((object t) &key &allow-other-keys)
+    (make-array 1 :adjustable t :fill-pointer t :initial-contents (list object)))
+  (:documentation "Ensure that the return value is an array.
+If OBJECT is an array already, return it.
+If it's a literal value, wrap it into a one-element array.
+If it's an object:
+- When CONVERT-OBJECTS is T, put all the values into an array (order
+  not guaranteed).
+- Otherwise wrap the object into an array."))
+
+(defgeneric ensure-object (key object &key &allow-other-keys)
+  (:method ((key string) (object hash-table) &key &allow-other-keys)
+    (jget key object t)
+    object)
+  (:method ((key string) (object t) &key &allow-other-keys)
+    (let ((hash-table (make-hash-table :test 'equal)))
+      (setf (jget key hash-table) object)
+      hash-table))
+  (:documentation "Ensure that the return value is a JSON object.
+If OBJECT is an object already, return it, checking KEY presence.
+If it's anything else, wrap it into an object with OBJECT under KEY.
+
+Throws errors (`no-such-key', `invalid-key') from underlying `jget'."))
