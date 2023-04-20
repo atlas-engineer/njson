@@ -28,29 +28,35 @@ If TEST is `jtruep' evaluate BODY."
 
 (defun check-value (expected indices object)
   "Check that JSON value in OBJECT at INDICES is `equal' to EXPECTED specification."
-  (let ((result (jget indices object t)))
-    (or (typecase expected
-          ((eql :true) (eq t result))
-          ((eql :false) (eq nil result))
-          ((and array (not string))
-           (and (arrayp result)
-                (not (stringp result))))
-          (list (hash-table-p result))
-          (t (equal result expected)))
-        (cerror
-         "Ignore the mismatch"
-         'value-mismatch
-                :expected (typecase expected
-                            ((eql :true) t)
-                            ((eql :false) nil)
-                            (t expected))
-                :actual result
-                :object (jget (subseq indices 0
-                                      ;; This 1- and max is to get the
-                                      ;; "parent" of RESULT.
-                                      (max 0 (1- (length indices))))
-                              object t))
-        t)))
+  (restart-case
+      (let ((result (jget indices object t)))
+        (or (typecase expected
+              ((eql :true) (eq t result))
+              ((eql :false) (eq nil result))
+              ((and array (not string))
+               (and (arrayp result)
+                    (not (stringp result))))
+              (list (hash-table-p result))
+              (t (equal result expected)))
+            (cerror
+             "Ignore the mismatch"
+             'value-mismatch
+             :expected (typecase expected
+                         ((eql :true) t)
+                         ((eql :false) nil)
+                         (t expected))
+             :actual result
+             :object (jget (subseq indices 0
+                                   ;; This 1- and max is to get the
+                                   ;; "parent" of RESULT.
+                                   (max 0 (1- (length indices))))
+                           object t))
+            t))
+    (store-value (new-value)
+      :report "Replace the offending value"
+      :interactive read-new-value
+      (setf (jget indices object t) new-value)
+      (check-value expected indices object))))
 
 ;; DESTRUCTURING-PATTERN is not a (&rest destructuring-pattern)
 ;; because it might be a vector too.

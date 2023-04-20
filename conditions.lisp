@@ -3,6 +3,18 @@
 
 (in-package #:njson)
 
+(defun read-new-value ()
+  (format *query-io* "Input the new value (evaluated)~%")
+  (list (eval (uiop:safe-read-from-string (read-line *query-io* nil nil)))))
+
+(defun read-new-key ()
+  (format *query-io* "Input the new key (literal number or string)~%")
+  (list (uiop:safe-read-from-string (read-line *query-io* nil nil))))
+
+(defun read-new-pointer ()
+  (format *query-io* "Input the new JSON Pointer~%")
+  (list (pathname (read-line *query-io* nil nil))))
+
 (define-condition decode-from-stream-not-implemented (error) ()
   (:documentation "Incomplete decoding implementation error.")
   (:report "DECODE-FROM-STREAM is not specialized.
