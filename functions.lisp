@@ -43,80 +43,55 @@ CHAR is left unread on STREAM after returning."
           :interactive read-new-pointer
           (parse-pointer-pathname new-pointer))))))
 
-(defgeneric jget (key-or-index object &optional error-p)
-  (:method ((keys sequence) (object t) &optional error-p)
-    (declare (ignore error-p))
+
+(defgeneric jget (key-or-index object)
+  (:method ((keys sequence) (object t))
     (case (length keys)
-      (0 object)
+      (0 (values object t))
       (1 (jget (elt keys 0) object))
       (t (jget (subseq keys 1)
                (jget (elt keys 0) object)))))
-  (:method ((index integer) (object array) &optional error-p)
+  (:method ((index integer) (object array))
     (cond
       ((<= 0 index (1- (length object)))
        (values (aref object index) t))
-      (error-p
-       (restart-case
-           (cerror "Ignore key absence, return nothing"
-                   'no-such-key :object object :key index)
-         (another-key (new-key)
-           :report "Use another key"
-           :interactive read-new-key
-           (check-type new-key integer)
-           (jget new-key object error-p))))
       (t (values nil nil))))
-  (:method ((key string) (object hash-table) &optional error-p)
+  (:method ((key string) (object hash-table))
     (cond
       ((nth-value 1 (gethash key object))
        (gethash key object))
-      (error-p
-       (restart-case
-           (cerror "Ignore key absence, return nothing"
-                   'no-such-key :object object :key key)
-         (another-key (new-key)
-           :report "Use another key"
-           :interactive read-new-key
-           (check-type new-key string)
-           (jget new-key object error-p))))
       (t (values nil nil))))
-  (:method ((pointer pathname) object &optional error-p)
-    (declare (ignore error-p))
+  (:method ((pointer pathname) object)
     (if (equal #p"" pointer)
         (values object t)
         (jget (parse-pointer-pathname pointer) object)))
-  (:method ((index string) (object array) &optional error-p)
-    (if error-p
-        (restart-case
-            (cerror "Return nothing"
-                    'invalid-key :key index :object object)
-          (use-integer (new-index)
-            :report "Use an integer key"
-            :interactive read-new-key
-            (check-type new-index integer)
-            (jget new-index object error-p)))
-        (values nil nil)))
-  (:method ((key integer) (object hash-table) &optional error-p)
-    (if error-p
-        (restart-case
-            (cerror "Return nothing"
-                    'invalid-key :key key :object object)
-          (use-string (new-key)
-            :report "Use a string key"
-            :interactive read-new-key
-            (check-type new-key string)
-            (jget new-key object error-p)))
-        (values nil nil)))
-  (:method (key object &optional error-p)
+  (:method ((index string) (object array))
+    (restart-case
+        (cerror "Return nothing"
+                'invalid-key :key index :object object)
+      (use-integer (new-index)
+        :report "Use an integer key"
+        :interactive read-new-key
+        (check-type new-index integer)
+        (jget new-index object))))
+  (:method ((key integer) (object hash-table))
+    (restart-case
+        (cerror "Return nothing"
+                'invalid-key :key key :object object)
+      (use-string (new-key)
+        :report "Use a string key"
+        :interactive read-new-key
+        (check-type new-key string)
+        (jget new-key object))))
+  (:method (key object)
     (declare (ignore key))
-    (when error-p
-      (cerror "Return nothing"
-              'non-indexable :value object))
+    (cerror "Return nothing"
+            'non-indexable :value object)
     (values nil nil))
-  (:method :around (key (object string) &optional error-p)
+  (:method :around (key (object string))
     (declare (ignore key))
-    (when error-p
-      (cerror "Return nothing"
-              'non-indexable :value object))
+    (cerror "Return nothing"
+            'non-indexable :value object)
     (values nil nil))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
 
@@ -127,16 +102,11 @@ KEY-OR-INDEX can be
 - a sequence of integers and strings (to index the nested structures).
 - an empty sequence/pathname (to match the whole object).
 
-If ERROR-P:
-- Throws `no-such-key' when the key is not present in object.
 - Throws `invalid-key' if using the wrong index type.
 - Throws `non-indexable' when trying to index something other than
   JSON arrays or objects.
 - Throws `invalid-pointer' when using JSON Pointer with invalid syntax
   as key.
-
-If not ERROR-P: does nothing and returns nothing in all the
-exceptional cases.
 
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
@@ -147,12 +117,11 @@ you can use
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
 
-(defgeneric (setf jget) (value key-or-index object &optional error-p)
-  (:method (value (keys sequence) (object t) &optional error-p)
+(defgeneric (setf jget) (value key-or-index object)
+  (:method (value (keys sequence) (object t))
     (case (length keys)
-      (0 (when error-p
-           (cerror "Don't set the value"
-                   'invalid-key :key keys :object object)))
+      (0 (cerror "Don't set the value"
+                 'invalid-key :key keys :object object))
       (1 (setf (jget (elt keys 0) object) value))
       (t (setf (jget (elt keys (1- (length keys)))
                      (jget (subseq keys 0 (1- (length keys))) object))
@@ -163,86 +132,41 @@ OBJECT can be JSON array or object, which in Lisp translates to
     (setf (gethash key object) value))
   (:method (value (pointer pathname) object)
     (if (equal #p"" pointer)
-        (error 'invalid-key :key pointer :object object)
+        (restart-case
+            (cerror "Don't set the value"
+                    'invalid-key :key pointer :object object)
+          (another-pointer (new-pointer)
+            :report "Use another pointer"
+            :interactive read-new-pointer
+            (setf (jget new-pointer object) value)))
         (setf (jget (parse-pointer-pathname pointer) object)
               value)))
-  (:method (value key (object string))
+  (:method (value (index string) (object array))
+    (restart-case
+        (cerror "Don't set the value"
+                'invalid-key :key index :object object)
+      (use-integer (new-key)
+        :report "Use an integer key"
+        :interactive read-new-key
+        (check-type new-key integer)
+        (setf (jget new-key object) value))) )
+  (:method (value (key integer) (object hash-table))
+    (restart-case
+        (cerror "Don't set the value"
+                'invalid-key :key key :object object)
+      (use-string (new-key)
+        :report "Use a string key"
+        :interactive read-new-key
+        (check-type new-key string)
+        (setf (jget new-key object) value))))
+  (:method (value key (object t))
     (declare (ignore value key))
-    (error 'non-indexable :value object))
-  (:method (value key (object null))
+    (cerror "Don't set the value"
+            'non-indexable :value object))
+  (:method :around (value key (object string))
     (declare (ignore value key))
-    (error 'non-indexable :value object))
-  (:method (value (index integer) (object array) &optional error-p)
-    (cond
-      ((<= 0 index (1- (length object)))
-       (setf (aref object index) value))
-      (error-p
-       (restart-case
-           (cerror "Don't set the value"
-                   'no-such-key :object object :key index)
-         (another-key (new-key)
-           :report "Use another key"
-           :interactive read-new-key
-           (check-type new-key integer)
-           (setf (jget new-key object error-p) value))))))
-  (:method (value (key string) (object hash-table) &optional error-p)
-    (cond
-      ((nth-value 1 (gethash key object))
-       (setf (gethash key object) value))
-      (error-p
-       (restart-case
-           (progn
-             (cerror "Set the value anyway"
-                     'no-such-key :object object :key key)
-             (setf (gethash key object) value))
-         (another-key (new-key)
-           :report "Use another key"
-           :interactive read-new-key
-           (check-type new-key string)
-           (setf (jget new-key object error-p) value))))
-      (t (setf (gethash key object) value))))
-  (:method (value (pointer pathname) object &optional error-p)
-    (if (equal #p"" pointer)
-        (when error-p
-          (restart-case
-              (cerror "Don't set the value"
-                      'invalid-key :key pointer :object object)
-            (another-pointer (new-pointer)
-              :report "Use another pointer"
-              :interactive read-new-pointer
-              (setf (jget new-pointer object error-p) value))))
-        (setf (jget (parse-pointer-pathname pointer) object)
-              value)))
-  (:method (value (index string) (object array) &optional error-p)
-    (when error-p
-      (restart-case
-          (cerror "Don't set the value"
-                  'invalid-key :key index :object object)
-        (use-integer (new-key)
-          :report "Use an integer key"
-          :interactive read-new-key
-          (check-type new-key integer)
-          (setf (jget new-key object error-p) value)))) )
-  (:method (value (key integer) (object hash-table) &optional error-p)
-    (when error-p
-      (restart-case
-          (cerror "Don't set the value"
-                  'invalid-key :key key :object object)
-        (use-string (new-key)
-          :report "Use a string key"
-          :interactive read-new-key
-          (check-type new-key string)
-          (setf (jget new-key object error-p) value)))))
-  (:method (value key (object t) &optional error-p)
-    (declare (ignore value key))
-    (when error-p
-      (cerror "Don't set the value"
-              'non-indexable :value object)))
-  (:method :around (value key (object string) &optional error-p)
-    (declare (ignore value key))
-    (when error-p
-      (cerror "Do nothing"
-              'non-indexable :value object)))
+    (cerror "Do nothing"
+            'non-indexable :value object))
   (:documentation "Set the value at KEY-OR-INDEX in OBJECT.
 
 The arguments are the same as in `jget', except KEY-OR-INDEX cannot be
@@ -250,16 +174,11 @@ an empty pathname/sequence (because setting the object itself to a new
 value is not possible in CL, unless it's a place, which is not
 guaranteed for `jget' arguments).
 
-If ERROR-P:
-- Throws `no-such-key' when the key is not present in object.
 - Throws `invalid-key' if using the wrong index type.
 - Throws `non-indexable' when trying to index something other than
   JSON arrays or objects.
 - Throws `invalid-pointer' when using JSON Pointer with invalid syntax
   as key.
-
-If not ERROR-P: does nothing and returns nothing in all the
-exceptional cases.
 
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
@@ -348,7 +267,7 @@ If it's an object:
 
 (defgeneric ensure-object (key object &key &allow-other-keys)
   (:method ((key string) (object hash-table) &key &allow-other-keys)
-    (jget key object t)
+    (jget key object)
     object)
   (:method ((key string) (object t) &key &allow-other-keys)
     (let ((hash-table (make-hash-table :test 'equal)))
@@ -358,4 +277,5 @@ If it's an object:
 If OBJECT is an object already, return it, checking KEY presence.
 If it's anything else, wrap it into an object with OBJECT under KEY.
 
-Throws errors (`no-such-key', `invalid-key') from underlying `jget'."))
+Throws errors from underlying `jget'."))
+

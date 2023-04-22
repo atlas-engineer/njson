@@ -29,8 +29,16 @@ If TEST is `jtruep' evaluate BODY."
 (defun check-value (expected indices object)
   "Check that JSON value in OBJECT at INDICES is `equal' to EXPECTED specification."
   (restart-case
-      (let ((result (jget indices object t)))
+      (let ((result (jget indices object)))
         (or (typecase expected
+              ((eql t)
+               (multiple-value-bind (value present)
+                   (jget indices object)
+                 (if present
+                     value
+                     (cerror
+                      "Bind to nothing"
+                      'invalid-key :key indices :object object))))
               ((eql :true) (eq t result))
               ((eql :false) (eq nil result))
               ((and array (not string))
@@ -50,12 +58,12 @@ If TEST is `jtruep' evaluate BODY."
                                    ;; This 1- and max is to get the
                                    ;; "parent" of RESULT.
                                    (max 0 (1- (length indices))))
-                           object t))
+                           object))
             t))
     (store-value (new-value)
       :report "Replace the offending value"
       :interactive read-new-value
-      (setf (jget indices object t) new-value)
+      (setf (jget indices object) new-value)
       (check-value expected indices object))))
 
 ;; DESTRUCTURING-PATTERN is not a (&rest destructuring-pattern)
@@ -75,9 +83,10 @@ The pattern might be:
   with at least as many elements as provided in the vector. Match
   every form in the vector against the element with the same index.
 
-If the DESTRUCTURING-PATTERN doesn't match the object, underlying
-`jget' will throw errors for the parts that don't match. See `jget'
-documentation for the types of errors it throws.
+If the DESTRUCTURING-PATTERN doesn't match the object, throws `invalid-key'
+
+Underlying `jget' can throw errors for the exceptionally malformed
+inputs. See `jget' documentation for the types of errors it throws.
 
 Example:
 \(\"hello\" hello \"a\" _ \"b\" b
@@ -130,7 +139,7 @@ fourth element in the nested array."
                                           (uiop:emptyp key))
                                     collect `(,binding ,form-sym)
                              else
-                               collect `(,binding (jget (vector ,@key) ,form-sym t)))))
+                               collect `(,binding (check-value t (vector ,@key) ,form-sym)))))
         `(let* ((,form-sym ,form)
                 ,@let-forms)
            (declare (ignorable ,form-sym ,@(mapcar #'first let-forms)))
