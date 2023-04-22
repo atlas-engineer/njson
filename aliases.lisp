@@ -5,44 +5,47 @@
   (:use #:common-lisp)
   (:export
    #:decode #:encode
-   #:has #:get #:rem #:copy #:true #:truep #:true?
-   #:if #:when #:or #:and #:not)
+   #:get #:copy #:true #:truep #:true?
+   #:keys #:ensure-array #:ensure-object
+   #:if #:when #:or #:and #:not
+   #:bind #:match
+   #:@)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
 Perfect with j: package-local-nickname, disastrous when :use-d."))
 
 (in-package #:njson/aliases)
 
-(setf (symbol-function 'njson/aliases:decode) #'njson:decode
-      (symbol-function 'njson/aliases:encode) #'njson:encode
-      (symbol-function 'njson/aliases:has) #'njson:jhas
-      (symbol-function 'njson/aliases:get) #'njson:jget
-      (fdefinition '(setf njson/aliases:get)) (fdefinition '(setf njson:jget))
-      (symbol-function 'njson/aliases:rem) #'njson:jrem
-      (symbol-function 'njson/aliases:copy) #'njson:jcopy
-      (symbol-function 'njson/aliases:true) #'njson:jtruep
-      (symbol-function 'njson/aliases:truep) #'njson:jtruep
-      (symbol-function 'njson/aliases:true?) #'njson:jtruep)
+(loop for (alias original) in '((njson/aliases:decode njson:decode)
+                                (njson/aliases:encode njson:encode)
+                                (njson/aliases:get njson:jget)
+                                ((setf njson/aliases:get) (setf njson:jget))
+                                (njson/aliases:copy njson:jcopy)
+                                (njson/aliases:true njson:jtruep)
+                                (njson/aliases:truep njson:jtruep)
+                                (njson/aliases:true? njson:jtruep)
+                                (njson/aliases:keys njson:jkeys)
+                                (njson/aliases:not njson:jnot)
+                                (njson/aliases:ensure-array njson:ensure-array)
+                                (njson/aliases:ensure-object njson:ensure-object))
+      do (setf (fdefinition alias) (fdefinition original))
+      unless (listp alias)
+        do (setf (documentation alias 'function) (documentation original 'function)))
 
-(defmacro njson/aliases:if (test then &optional (else nil))
-  "JSON-aware version of `cl:if'.
-If TEST is `njson:jtruep' evaluate THEN, otherwise evaluate ELSE.
-Alias for `njson:jif'."
-  `(njson:jif ,test ,then ,else))
+(loop for (alias original) in '((njson/aliases:if njson:jif)
+                                (njson/aliases:when njson:jwhen)
+                                (njson/aliases:or njson:jor)
+                                (njson/aliases:and njson:jand)
+                                (njson/aliases:bind njson:jbind)
+                                (njson/aliases:match njson:jmatch))
+      do (setf (macro-function alias) (macro-function original))
+      unless (listp alias)
+        do (setf (documentation alias 'function) (documentation original 'function)))
 
-(defmacro njson/aliases:when (test &body body)
-  "JSON-aware version of `cl:when'.
-If TEST is `njson:jtruep' evaluate BODY."
-  `(njson:jwhen ,test ,@body))
+(defun @ (object &rest keys)
+  "Alias for `jget' that indexes OBJECT with KEYS.
+Setf-able."
+  (njson:jget keys object))
 
-(defmacro njson/aliases:or (&rest args)
-  "JSON-aware version of `cl:or'."
-  `(njson:jor ,@args))
-
-(defmacro njson/aliases:and (&rest args)
-  "JSON-aware version of `cl:and'."
-  `(njson:jand ,@args))
-
-(defun njson/aliases:not (arg)
-  "JSON-aware version of `cl:not'."
-  (njson:jnot arg))
+(defun (setf @) (value object &rest keys)
+  (setf (njson:jget keys object) value))

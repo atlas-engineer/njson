@@ -56,7 +56,7 @@
    (native-inputs (list cl-lisp-unit2 sbcl))
    (inputs (list cl-json))
    (arguments
-    '(#:asd-systems '("njson" "njson/aliases" "njson/cl-json")))
+    '(#:asd-systems '("njson" "njson/cl-json")))
    (synopsis "JSON handling framework for Common Lisp.")
    (home-page "https://github.com/atlas-engineer/njson")
    (description "NJSON aims to make it convenient for one to decode, encode,

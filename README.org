@@ -19,23 +19,21 @@ Load NJSON (with a cl-json backend) in the REPL:
   (asdf:load-system :njson/cl-json)
   ;; Alternatively, load it with Quicklisp.
   (ql:quickload :njson/cl-json)
-  ;; NOTE: :NJSON system implicitly includes :NJSON/CL-JSON backend for
-  ;; your convenience. If you want other backend, load :NJSON/BACKEND.
 #+end_src
 
 And start parsing right away, be it from file:
 #+begin_src lisp
   (njson:decode #p"/path/to/njson/checkout/tests/test.json")
-  ;; => (1 3.8 T NIL :UNDEFINED :NULL "foo" (1 2 3) ("bar" 8.3 T :NULL 1000000)
-  ;;     #<HASH-TABLE :TEST EQUAL :COUNT 1 {100EAB1383}>
-  ;;     #<HASH-TABLE :TEST EQUAL :COUNT 3 {100EAB16D3}>)
+  ;; => #(1 3.8 T NIL :UNDEFINED :NULL "foo" #(1 2 3) #("bar" 8.3 T :NULL 1000000)
+  ;;      #<HASH-TABLE :TEST EQUAL :COUNT 1 {100EAB1383}>
+  ;;      #<HASH-TABLE :TEST EQUAL :COUNT 3 {100EAB16D3}>)
 
 #+end_src
 
 or from string:
 #+begin_src lisp
   (njson:decode "[\"hello\", 5]")
-  ;; => ("hello", 5)
+  ;; => #("hello", 5)
 #+end_src
 
 or other specializeable types. Default methods support:
@@ -44,7 +42,7 @@ or other specializeable types. Default methods support:
 - streams.
 
 ** Running tests
-Given JSON backend-agnostic nature, you can only test every particular backend against the uniform set of tests that NJSON provides. So, to test CL-JSON, you can do:
+Given NJSON backend-agnostic nature, you can only test every particular backend against the uniform set of tests that NJSON provides. So, to test CL-JSON backend, you can do:
 #+begin_src lisp
   (asdf:test-system :njson/cl-json)
 #+end_src
@@ -83,7 +81,7 @@ that your own methods extending NJSON should expect/return) are:
 - ~:null~ for JSON ~null~.
 - ~t~ for ~true~ and ~nil~ for ~false~.
 - ~:undefined~ for ~undefined~.
-- Lists for JSON arrays.
+- Vectors for JSON arrays.
 - Hash-tables for JSON objects.
 
 With this basic (yet disjoint) set of types, you can easily ~typecase~
@@ -106,6 +104,9 @@ can
   CL constructs) are available:
 #+begin_src lisp
   (trivial-package-local-nicknames:add-package-local-nickname :j :njson/aliases :YOUR-PACKAGE)
+  ;; And then use it like.
+  (j:get ...)
+  (j:decode ...)
 #+end_src
 
 
@@ -113,53 +114,75 @@ The helpers are:
 
 *** FUNCTION njson:jget (alias: njson/aliases:get)
 
-Gets the value from the JSON object/array indexed by a certain key
+Gets the value from the JSON object/array indexed by a certain key. Note that the second value is a boolean denoting whether the entry under key is found (like in ~gethash~).
 
 #+begin_src lisp
-  (njson:jget "key" (njson:decode "{\"key\": 5}"))
-  ;; => 5
-  (njson:jget 5 (njson:decode "[0, 1, 2, 3, 4, 5]"))
-  ;; => 5
+  (defvar data (njson:decode "{\"key\": 5, \"second-key\": [1, 2, false]}"))
+  (njson:jget "key" data)
+  ;; => 5, T
+
+  ;; Index using sequence:
+  (njson:jget '("second-key" 1) data)
+  ;; => 2, T
+
+  ;; Index using JSON Pointer (as pathname):
+  (njson:jget #p"/second-key/0" data)
+  ;; => 1, T
+
+  ;; Modify the element in place:
+  (setf (njson:jget #p"/second-key/0" data) 3)
+  ;; Another indexing syntax, for no particular reason:
+  (njson:jget #("second-key" 0) data)
+  ;; => 3, T
 #+end_src
 
-*** FUNCTION njson:jhas (alias: njson/aliases:has)
-
-Checks the presence of the value under KEY-OR-INDEX in OBJECT.
-
-#+begin_src lisp
-  (njson:jhas "key" (njson:decode "{\"key\": 5}"))
-  ;; => T
-  (njson:jhas 8 (njson:decode "[0, 1, 2, 3, 4, 5]"))
-  ;; => NIL
-#+end_src
-
-*** FUNCTION njson:jrem (alias: njson/aliases:rem)
-
-Removes the value from the JSON object/array indexed by a certain key
-
-#+begin_src lisp
-  (defvar data (njson:decode "{\"key\": 5}"))
-  data
-  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 1 {1007F2F1A3}>
-  (njson:jrem "key" data)
-  data
-  ;; => #<HASH-TABLE :TEST EQUAL :COUNT 0 {1007F2F1A3}>
-#+end_src
+Note the pathname indexing—it uses the [[https://www.rfc-editor.org/rfc/rfc6901][JSON Pointer]] syntax for indexing convenience.
 
 *** FUNCTION njson:jcopy (alias: njson/aliases:copy)
 
-Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object.
+Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object. Makes all the arrays adjustable and fillable for further possibly destructive use.
 
 #+begin_src lisp
   (defvar data (njson:jget "key" (njson:decode "{\"key\": 5}")))
-  ;; => 5
+  ;; => 5, T
   (njson:jget "key" (njson:jcopy data))
-  ;; => 5
+  ;; => 5, T
+#+end_src
+
+*** FUNCTION njson:jkeys (alias: njson/aliases:keys)
+
+Gets all the keys present in the passed object. Integer keys for arrays, string keys for object, error for anything else.
+#+begin_src lisp
+  (njson:jkeys (njson:decode "{\"a\": 1, \"b\": 2}"))
+  ;; ("a" "b")
+  (njson:jkeys (njson:decode "[\"a\", \"b\"]"))
+  ;; (0 1)
+#+end_src
+
+*** FUNCTIONS njson:ensure-array, njson:ensure-object (aliases: njson/aliases:ensure-array, njson/aliases:ensure-object)
+
+Ensure that the passed object is turned into array or object (respectively). If ~:convert-objects~ is provided in ~njson:ensure-array~, it creates an array with all the values of object, discarding keys.
+#+begin_src lisp
+  (njson:ensure-array #(1 2 3))
+  ;; #(1 2 3)
+  (njson:ensure-array 3)
+  ;; #(3)
+  (njson:ensure-array (njson:decode "{\"a\": 3}"))
+  ;; #(#<hash-table>)
+  (njson:ensure-array (njson:decode "{\"a\": 3}") :convert-objects t)
+  ;; #(3)
+
+  (njson:ensure-object "key" #<hash-table>)
+  ;; #<hash-table>
+  (njson:ensure-object "key" 3)
+  ;; #<hash-table> with "key": 3
+  (njson:ensure-object "key" #(1 2 3))
+  ;; #<hash-table> with "key": #(1 2 3)
 #+end_src
 
 *** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
 
-Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON standard.
+Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON.
 
 All the macros below utilize it, so, if you want to change the behavior of those, specialize this function.
 
@@ -191,6 +214,60 @@ A regular Lisp ~if~ aware of JSON truths and lies.
 
 Regular Lisp logic operators, with awareness of JSON values.
 
+*** MACRO njson:jbind (alias njson/aliases:bind)
+
+Destructures a JSON object against the provided destructuring pattern. This is most useful for deeply nested JSON structures often returned from old/corporate APIs. One example of such APIs is the Reddit one. To get to the title of the post, one has to go through half a dozen layers of nested objects and arrays:
+#+begin_src js
+  [{"kind": "Listing",
+    "data": {"children": [{"kind": "t3",
+                           "data": {"approved_at_utc": null,
+                                    "subreddit": "programming",
+                                    ...
+                                    // Finally, a title!
+                                    "title": "Henry Baker: Meta-circular semantics for Common Lisp special forms",
+                                    "link_flair_richtext": [],
+                                    "subreddit_name_prefixed": "r/programming",
+                                    ...}}]
+             ...}}
+   ...]
+#+end_src
+
+One needs a strong destructuring facility with type checking to move through this mess of JSON data. ~jbind~ is exactly this facility. Here's how accessing the title of Reddit post would look like (array patterns access JSON arrays, list patterns access JSON objects) with ~jbind~:
+#+begin_src lisp
+  (njson:jbind #(("data" ("children" #(("data" ("title" title))))))
+      ;; Dexador is not a dependency of NJSON, so load it separately
+      (njson:decode
+       (dex:get
+        "https://www.reddit.com/r/programming/comments/6er9d/henry_baker_metacircular_semantics_for_common.json"))
+    title)
+  ;; "Henry Baker: Meta-circular semantics for Common Lisp special forms"
+#+end_src
+
+See documentation for more examples.
+
+*** MACRO njson:jmatch (alias njson/aliases:match)
+
+Matches/destructures the provided form against patterns one by one, and executes the body of the successfully matching one with the bindings it established. Every pattern and body is essentially a ~jbind~ with checking for destructuring success. The use-case is dispatching over API responses that differ in structure. Telegram Bot API, for example, has disjoint contents for error responses and success responses:
+- Error responses have "ok" key set to false, and keys called "description" and "error_code".
+- Successful responses have "ok" set to true and "result" as the payload they return.
+
+Given these restrictions, we can ~jmatch~ the result of Bot API:
+#+begin_src lisp
+  (njson:jmatch
+   parsed-api-data
+   (("ok" :true "result" result)
+    (values t result))
+   (("ok" :false "error_code" _ "description" description)
+    (values nil description))
+   (t (error "Malformed data!")))
+#+end_src
+
+After parsing the data, we have clear value distinctions:
+- On success, return (VALUES (EQL T) *) with the payload.
+- On error, return (VALUES NULL &OPTIONAL STRING).
+- And in the exceptional case of malformed data, error out.
+
+~jmatch~ (and ~jbind~) also checks the value matching (see the ~"ok" :true~ and ~"ok" :false~ parts) with arbitrary JSON atomic type (number, string, ~:true~ (for T), ~:false~ (for NIL), ~:null~ and ~:undefined~). Arrays and lists are destructuring patterns already, so any value in them can be equality-checked.
+
 * Roadmap
 - [ ] Make an in-depth guide on supporting other backends.
-- [ ] Add an object-specific things, like ~j:keys~ and ~j:vals~ (would work for arrays too, I guess)?
