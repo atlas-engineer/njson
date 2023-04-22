@@ -8,7 +8,8 @@
    #:get #:copy #:true #:truep #:true?
    #:keys #:ensure-array #:ensure-object
    #:if #:when #:or #:and #:not
-   #:bind #:match)
+   #:bind #:match
+   #:@)
   (:shadow #:get #:rem #:if #:when #:or #:and #:not)
   (:documentation "Short aliases for the regular njson functions.
 Perfect with j: package-local-nickname, disastrous when :use-d."))
@@ -40,3 +41,11 @@ Perfect with j: package-local-nickname, disastrous when :use-d."))
       do (setf (macro-function alias) (macro-function original))
       unless (listp alias)
         do (setf (documentation alias 'function) (documentation original 'function)))
+
+(defun @ (object &rest keys)
+  "Alias for `jget' that indexes OBJECT with KEYS.
+Setf-able."
+  (njson:jget keys object))
+
+(defun (setf @) (value object &rest keys)
+  (setf (njson:jget keys object) value))
