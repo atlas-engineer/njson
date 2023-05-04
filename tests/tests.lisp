@@ -4,7 +4,6 @@
 (in-package #:njson/tests)
 
 (define-test json-literals ()
-  (assert-eq :undefined (decode "undefined"))
   (assert-eq :null (decode "null"))
   (assert-false (decode "false"))
   (assert-eq t (decode "true")))
@@ -25,7 +24,7 @@
 ;;; TODO: jget, jrem tests.
 
 (define-test from-file ()
-  (destructuring-bind (simple-1 float-3.8 true false undefined null
+  (destructuring-bind (simple-1 float-3.8 true false null
                        string-foo array-123 array-of-everything
                        object-quux-1883 object-of-everything)
       (coerce (decode (asdf:system-relative-pathname :njson "tests/test.json")) 'list)
@@ -33,7 +32,6 @@
     (assert-eql 3.8 float-3.8)
     (assert-eq t true)
     (assert-false false)
-    (assert-eq :undefined undefined)
     (assert-eq :null null)
     (assert-equal "foo" string-foo)
     (assert-equalp #(1 2 3) array-123)
@@ -87,25 +85,25 @@
     (assert-error 'non-indexable (jget 20 200))
     (assert-error 'non-indexable (jget 20 200.3))
     (assert-error 'non-indexable (jget 20 "foo"))
-    (assert-error 'invalid-key (jget 20 (jget 9 object)))
-    (assert-error 'invalid-key (jget "bar" (jget 8 object)))
+    (assert-error 'invalid-key (jget 20 (jget 8 object)))
+    (assert-error 'invalid-key (jget "bar" (jget 7 object)))
     (assert-error 'invalid-pointer (jget #p"hello" object))))
 
 (define-test setf-jget-errors ()
   (let ((object (decode (asdf:system-relative-pathname :njson "tests/test.json"))))
-    (assert-error 'invalid-key (setf (jget 20 (jget 9 object)) nil))
-    (assert-error 'invalid-key (setf (jget "bar" (jget 8 object)) nil))
-    (assert-error 'invalid-key (setf (jget #p"" (jget 8 object)) nil))
-    (assert-error 'invalid-key (setf (jget #() (jget 8 object)) nil))
+    (assert-error 'invalid-key (setf (jget 20 (jget 8 object)) nil))
+    (assert-error 'invalid-key (setf (jget "bar" (jget 7 object)) nil))
+    (assert-error 'invalid-key (setf (jget #p"" (jget 7 object)) nil))
+    (assert-error 'invalid-key (setf (jget #() (jget 7 object)) nil))
     (assert-error 'non-indexable (setf (jget 20 200.3) 10))
     (assert-error 'non-indexable (setf (jget 20 "foo") nil))))
 
 (define-test keys ()
   (let ((object (decode (asdf:system-relative-pathname :njson "tests/test.json"))))
     (assert-error 'non-indexable (jkeys (jget 0 object)))
-    (assert-error 'non-indexable (jkeys (jget 6 object)))
-    (assert-equal '(0 1 2 3 4) (jkeys (jget 8 object)))
-    (assert-equal '("quux") (jkeys (jget 9 object)))
+    (assert-error 'non-indexable (jkeys (jget 5 object)))
+    (assert-equal '(0 1 2 3) (jkeys (jget 7 object)))
+    (assert-equal '("quux") (jkeys (jget 8 object)))
     (assert-equal '() (jkeys (decode "{}")))
     (assert-equal '() (jkeys (decode "[]")))))
 

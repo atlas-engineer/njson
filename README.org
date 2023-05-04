@@ -24,7 +24,7 @@ Load NJSON (with a cl-json backend) in the REPL:
 And start parsing right away, be it from file:
 #+begin_src lisp
   (njson:decode #p"/path/to/njson/checkout/tests/test.json")
-  ;; => #(1 3.8 T NIL :UNDEFINED :NULL "foo" #(1 2 3) #("bar" 8.3 T :NULL 1000000)
+  ;; => #(1 3.8 T NIL :NULL "foo" #(1 2 3) #("bar" 8.3 T :NULL 1000000)
   ;;      #<HASH-TABLE :TEST EQUAL :COUNT 1 {100EAB1383}>
   ;;      #<HASH-TABLE :TEST EQUAL :COUNT 3 {100EAB16D3}>)
 
