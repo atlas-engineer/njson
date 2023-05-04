@@ -242,6 +242,9 @@ behavior is confusing)."))
   "JSON-aware version of `cl:not'."
   (not (jtruep arg)))
 
+(defun make-singular-array (object)
+  (make-array 1 :adjustable t :fill-pointer t :initial-contents (list object)))
+
 (defgeneric ensure-array (object &key &allow-other-keys)
   (:method ((object hash-table) &key convert-objects &allow-other-keys)
     (if convert-objects
@@ -254,9 +257,11 @@ behavior is confusing)."))
   (:method ((object vector) &key &allow-other-keys)
     object)
   (:method ((object string) &key &allow-other-keys)
-    (make-array 1 :adjustable t :fill-pointer t :initial-contents (list object)))
+    (make-singular-array object))
+  (:method ((object null) &key &allow-other-keys)
+    (make-singular-array object))
   (:method ((object t) &key &allow-other-keys)
-    (make-array 1 :adjustable t :fill-pointer t :initial-contents (list object)))
+    (make-singular-array object))
   (:documentation "Ensure that the return value is an array.
 If OBJECT is an array already, return it.
 If it's a literal value, wrap it into a one-element array.
