@@ -64,7 +64,11 @@ If TEST is `jtruep' evaluate BODY."
       :report "Replace the offending value"
       :interactive read-new-value
       (setf (jget indices object) new-value)
-      (check-value expected indices object))))
+      (check-value expected indices object))
+    (use-value (new-value)
+      :report "Return a replacement"
+      :interactive read-new-value
+      new-value)))
 
 ;; DESTRUCTURING-PATTERN is not a (&rest destructuring-pattern)
 ;; because it might be a vector too.
