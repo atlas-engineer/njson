@@ -25,6 +25,12 @@
   :in-order-to ((test-op (test-op "njson/tests")
                          (test-op "njson/tests/compilation"))))
 
+(defsystem "njson/jzon"
+  :depends-on ("njson" "com.inuoe.jzon")
+  :components ((:file "backend/jzon"))
+  :in-order-to ((test-op (test-op "njson/tests")
+                         (test-op "njson/tests/compilation"))))
+
 (defsystem "njson/tests"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-test-system

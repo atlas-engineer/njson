@@ -11,14 +11,14 @@ Clone the Git repository:
   git clone --recursive https://github.com/atlas-engineer/njson ~/common-lisp/
 #+end_src
 
-Load NJSON (with a cl-json backend) in the REPL:
+Load NJSON (with a jzon backend) in the REPL:
 #+begin_src lisp
   ;; Show ASDF where NJSON is.
   (asdf:load-asd #p"/path/to/checkout/njson.asd")
   ;; Load it with ASDF.
-  (asdf:load-system :njson/cl-json)
+  (asdf:load-system :njson/jzon)
   ;; Alternatively, load it with Quicklisp.
-  (ql:quickload :njson/cl-json)
+  (ql:quickload :njson/jzon)
 #+end_src
 
 And start parsing right away, be it from file:
@@ -42,7 +42,11 @@ or other specializeable types. Default methods support:
 - streams.
 
 ** Running tests
-Given NJSON backend-agnostic nature, you can only test every particular backend against the uniform set of tests that NJSON provides. So, to test CL-JSON backend, you can do:
+Given NJSON backend-agnostic nature, you can only test every particular backend against the uniform set of tests that NJSON provides. So, to test jzon backend, you can do:
+#+begin_src lisp
+  (asdf:test-system :njson/jzon)
+#+end_src
+And, for the CL-JSON backend,
 #+begin_src lisp
   (asdf:test-system :njson/cl-json)
 #+end_src
@@ -53,8 +57,8 @@ Given NJSON backend-agnostic nature, you can only test every particular backend 
 
 It's one level higher: it's a convenience wrapper around your JSON
 parser of choice. NJSON is made in such a way so as to be usable with
-almost any JSON library out there. The default backend is CL-JSON,
-that proven itself extensible enough.
+almost any JSON library out there. The bundled backends are jzon
+(reliable, though new), and CL-JSON (fuzzy yet battle-proven).
 
 - To make NJSON support your preferred JSON parser, you have to
   specialize as little as two methods: ~decode-from-stream~ and
@@ -67,8 +71,8 @@ that proven itself extensible enough.
 The core (~njson~ ASDF system) has no dependencies due to specifying
 only the generics to implement.
 
-Every other dependency (CL-JSON in case of ~njson/cl-json~ backend) is
-optional and depends on which backend you want to use for parsing.
+Every other dependency is optional and depends on which backend you
+want to use for parsing.
 
 ** NJSON is not the fastest JSON handling solution out there.
 
