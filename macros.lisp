@@ -45,6 +45,10 @@ If TEST is `jtruep' evaluate BODY."
                (and (arrayp result)
                     (not (stringp result))))
               (list (hash-table-p result))
+              ;; This is to allow double and single float comparisons.
+              (number (when (numberp result)
+                        (< (abs (- result expected))
+                           single-float-epsilon)))
               (t (equal result expected)))
             (cerror
              "Ignore the mismatch"
