@@ -77,8 +77,13 @@ The pattern might be:
   - String or number: compare with `equal'.
   - Keywords :TRUE, :FALSE, :NULL, :UNDEFINED, matching T, NIL, :NULL,
     and :UNDEFINED respectively.
-- If the pattern is a list, match the string+pattern pairs inside it
-  to the provided JSON object and resolve them recursively.
+- If the pattern is a property list of string+pattern pairs, match the
+  string+pattern pairs inside it to the provided JSON object and
+  resolve them recursively.
+- If the pattern is a list of symbols (VAR &optional VAR-P), these are
+  bound to the respective values of `jget'. It is a good way to make
+  `jbind' to be more lenient to missing keys, because the default
+  behavior is to error on missing data.
 - If the pattern is an inline vector, match it against a JSON array
   with at least as many elements as provided in the vector. Match
   every form in the vector against the element with the same index.
@@ -103,7 +108,9 @@ and binds
 - THIRD to 3
 
 It also checks that \"a\" key is present in the object and there's a
-fourth element in the nested array."
+fourth element in the nested array.
+
+See more examples in njson tests."
   (let ((form-sym (gensym "BIND-FORM"))
         (bindings (list)))
     (labels ((parse-pattern (pattern &optional (current-path (list)))
@@ -111,10 +118,14 @@ fourth element in the nested array."
                  ((or (member :true :false :null :undefined) string real)
                   (push (cons pattern (copy-list current-path))
                         bindings))
-                 (list (loop for (key subpattern) on pattern by #'cddr
-                             do (parse-pattern subpattern (append current-path (list key))))
-                       (push (cons nil (copy-list current-path))
-                             bindings))
+                 ((cons symbol *)
+                  (push (cons pattern (copy-list current-path))
+                        bindings))
+                 (list
+                  (loop for (key subpattern) on pattern by #'cddr
+                        do (parse-pattern subpattern (append current-path (list key))))
+                  (push (cons nil (copy-list current-path))
+                        bindings))
                  ((and symbol (not keyword))
                   (push (cons (if (equal "_" (symbol-name pattern))
                                   (gensym "_PATTERN")
@@ -131,13 +142,23 @@ fourth element in the nested array."
                   "proper jbind destructuring pattern: list, array, or symbol")
       (parse-pattern destructuring-pattern)
       (let ((let-forms (loop for (binding . key) in bindings
-                             do (check-type binding (or array real symbol))
+                             do (check-type binding (or array real symbol
+                                                        ;; For (VAR VAR-P) forms
+                                                        (cons symbol (or (cons symbol null)
+                                                                         null))))
                              if (typep binding '(or array real null
                                                  (member :true :false :null :undefined)))
                                collect `(,(gensym) (check-value ,binding (vector ,@key) ,form-sym))
                              else if (and (symbolp binding)
                                           (uiop:emptyp key))
                                     collect `(,binding ,form-sym)
+                             else if (listp binding)
+                                    append (destructuring-bind (var &optional (var-p nil var-p-provided))
+                                               binding
+                                             (append
+                                              `((,var (jget (vector ,@key) ,form-sym)))
+                                              (when var-p-provided
+                                                `((,var-p (nth-value 1 (jget (vector ,@key) ,form-sym)))))))
                              else
                                collect `(,binding (check-value t (vector ,@key) ,form-sym)))))
         `(let* ((,form-sym ,form)

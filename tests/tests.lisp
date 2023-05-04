@@ -208,4 +208,9 @@
       (assert-equal
        "hello" (jbind string
                    "hello"
-                 string)))))
+                 string))
+      ;; Test lenient var-p bindings
+      (assert-bind #(("data" ("modhash" (modhash modhash-p)))))
+      (assert-bind #(("data" ("modfoo" (modfoo modfoo-p)))))
+      (assert-bind #(("data" ("modfoo" (modfoo))))))))
+
