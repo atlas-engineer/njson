@@ -32,9 +32,9 @@ If TEST is `jtruep' evaluate BODY."
       (let ((result (jget indices object)))
         (or (typecase expected
               ((eql t)
-               (multiple-value-bind (value present)
+               (multiple-value-bind (value value-p)
                    (jget indices object)
-                 (if present
+                 (if value-p
                      value
                      (cerror
                       "Return nothing"
