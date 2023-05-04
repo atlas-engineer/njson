@@ -37,7 +37,7 @@ If TEST is `jtruep' evaluate BODY."
                  (if present
                      value
                      (cerror
-                      "Bind to nothing"
+                      "Return nothing"
                       'invalid-key :key indices :object object))))
               ((eql :true) (eq t result))
               ((eql :false) (eq nil result))
