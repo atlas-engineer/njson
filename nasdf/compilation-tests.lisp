@@ -11,6 +11,11 @@
     :reader packages
     :documentation "Packages to check for unbound exports.
 Sub-packages are included in the check.")
+   (unbound-symbols-to-ignore
+    :initform '()
+    :initarg :unbound-symbols-to-ignore
+    :reader unbound-symbols-to-ignore
+    :documentation "Symbols to ignore when checking for unbound exports.")
    (undocumented-symbols-to-ignore
     :initform '()
     :initarg :undocumented-symbols-to-ignore
@@ -21,11 +26,37 @@ Likely, slot names (these don't have native `documentation' support."))
 (import 'nasdf-compilation-test-system :asdf-user)
 
 (defun valid-type-p (type-specifier)
-  (handler-case
-      (progn
-        (typep t type-specifier)
-        t)
-    (error () nil)))
+  "Check the TYPE-SPECIFIER for being a valid type.
+The logic is:
+- If the type is documented as a type, then a type it is.
+- Otherwise, if `typep' exits normally (with whatever return value)
+  when checking arbitrary value against this specifier, then
+  TYPE-SPECIFIER is valid.
+- And if there's an error about argument types, then TYPE-SPECIFIER is
+  the type requiring arguments. Which means: type exists, even if
+  requiring arguments.
+- If there's any other error raised by `typep', then TYPE-SPECIFIER is
+  likely not a type."
+  (or (documentation type-specifier 'type)
+      (handler-case
+          (progn
+            (typep t type-specifier)
+            t)
+        #+sbcl
+        (sb-kernel::arg-count-error ()
+          t)
+        #+ccl
+        (ccl::simple-program-error (e)
+          (search "can't be destructured against the lambda list" (format nil "~a" e)))
+        #+ecl
+        (simple-error (e)
+          (or (search "Too few arguments" (format nil "~a" e))
+              (not (search "not a valid type specifier" (format nil "~a" e)))))
+        #+clisp
+        (simple-error (e)
+          (or (search "may not be called with 0 arguments" (format nil "~a" e))
+              (not (search "invalid type specification" (format nil "~a" e)))))
+        (error () nil))))
 
 (defun list-unbound-exports (package)
   (let ((result '()))
@@ -61,8 +92,9 @@ Uses the built-in MOP abilities of every Lisp."
              (and (fboundp symbol)
                   (typep (symbol-function symbol) 'generic-function)
                   (some (lambda (class)
-                          (typep (find-method (symbol-function symbol) '() (list (find-class class)) nil)
-                                 '(or standard-accessor-method standard-reader-method standard-writer-method)))
+                          (ignore-errors
+                           (typep (find-method (symbol-function symbol) '() (list (find-class class)))
+                                  '(or standard-accessor-method standard-reader-method standard-writer-method))))
                         classes))))
       (do-external-symbols (s (find-package package) result)
         (unless (or (some (lambda (doctype) (documentation s doctype))
@@ -82,13 +114,27 @@ Uses the built-in MOP abilities of every Lisp."
                                (when exports
                                  (list package exports))))
                            (cons (find-package package) (list-subpackages package)))))))
-  (defun unbound-exports (package)
+  (defun unbound-exports (package symbols-to-ignore)
     "Report unbound exported symbols for PACKAGE and all its subpackages."
     ;; NOTE: these implementations throw errors on atypical type specifier, enabling `valid-type-p'
     #+(or sbcl ccl ecl clisp)
-    (let ((report (list-offending-packages package #'list-unbound-exports "unbound exports")))
+    (let* ((report (list-offending-packages package #'list-unbound-exports "unbound exports"))
+           (report (delete
+                    nil
+                    (mapcar (lambda (rep)
+                              (destructuring-bind (package symbols)
+                                  rep
+                                (let ((really-undocumented-symbols
+                                        (remove-if (lambda (sym)
+                                                     (member (symbol-name sym) symbols-to-ignore
+                                                             :key #'symbol-name :test #'equal))
+                                                   symbols)))
+                                  (if really-undocumented-symbols
+                                      (list package really-undocumented-symbols)
+                                      nil))))
+                            report))))
       (when report
-        (error "~a~&Found unbound exported symbols in ~a package~:p."
+        (error "~s~&Found unbound exported symbols in ~a package~:p."
                report (length report))))
     #-(or sbcl ccl ecl clisp) nil)
 
@@ -112,11 +158,11 @@ documentation (e.g. slot names)."
                                       nil))))
                             report))))
       (when report
-        (error "~a~&Found undocumented exported symbols in ~a package~:p."
+        (error "~s~&Found undocumented exported symbols in ~a package~:p."
                report (length report))))))
 
 (defmethod asdf:perform ((op asdf:test-op) (c nasdf-compilation-test-system))
   (logger "------- STARTING Compilation Testing: ~a" (packages c))
-  (mapc #'unbound-exports (packages c))
+  (mapc #'(lambda (p) (unbound-exports p (unbound-symbols-to-ignore c))) (packages c))
   (mapc #'(lambda (p) (undocumented-exports p (undocumented-symbols-to-ignore c))) (packages c))
   (logger "------- ENDING Compilation Testing: ~a" (packages c)))
