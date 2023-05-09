@@ -32,6 +32,7 @@
                          (test-op "njson/tests/compilation"))))
 
 (defsystem "njson/tests"
+  :description "Backend conformance test set. Don't use on its own!"
   :defsystem-depends-on ("nasdf")
   :class :nasdf-test-system
   :depends-on ("njson")
