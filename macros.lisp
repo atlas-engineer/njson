@@ -80,11 +80,11 @@ If TEST is `jtruep' evaluate BODY."
   "Match the FORM against DESTRUCTURING-PATTERN.
 The pattern might be:
 - A symbol, in which case the current chosen form is bound to it. If
-  the symbol is _ or NIL, simply skip the form.
+  the symbol is _, simply skip the form.
 - A literal form:
   - String or number: compare with `equal'.
-  - Keywords :TRUE, :FALSE, :NULL, :UNDEFINED, matching T, NIL, :NULL,
-    and :UNDEFINED respectively.
+  - Keywords :TRUE, :FALSE, and :NULL, matching T, NIL, and :NULL
+    respectively.
 - If the pattern is a property list of string+pattern pairs, match the
   string+pattern pairs inside it to the provided JSON object and
   resolve them recursively.
