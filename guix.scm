@@ -30,7 +30,7 @@
 (define-public sbcl-njson
   (package
    (name "sbcl-njson")
-   (version "1.0.0")
+   (version "1.1.0")
    (source
     (local-file (dirname (current-filename)) #:recursive? #t)
     ;;;; Or this, in case of contributing to Guix.
@@ -54,16 +54,16 @@
    ;;
    ;; The official Guix package should use `sbcl-*' inputs though.
    (native-inputs (list cl-lisp-unit2 sbcl))
-   (inputs (list cl-json))
+   (inputs (list cl-json cl-jzon))
    (arguments
-    '(#:asd-systems '("njson" "njson/cl-json")))
+    '(#:asd-systems '("njson" "njson/jzon")))
    (synopsis "JSON handling framework for Common Lisp.")
    (home-page "https://github.com/atlas-engineer/njson")
    (description "NJSON aims to make it convenient for one to decode, encode,
 and process JSON data, in the minimum keystrokes/minutes possible.
 
 NJSON is parser-independent, with existing Common Lisp JSON parsers being
-loadable as additional system.  @code{cl-json} is included by default, though.
+loadable as additional system.  @code{jzon} is included by default, though.
 Conveniences that NJSON provides are:
 
 @itemize
