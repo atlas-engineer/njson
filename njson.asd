@@ -5,6 +5,8 @@
   :description "NJSON is a JSON handling framework with the focus on convenience and brevity."
   :author "Atlas Engineer LLC"
   :homepage "https://github.com/atlas-engineer/njson"
+  :bug-tracker "https://github.com/atlas-engineer/njson/issues"
+  :source-control (:git "https://github.com/atlas-engineer/njson.git")
   :license  "BSD-3 Clause"
   :version "1.1.0"
   :serial t
