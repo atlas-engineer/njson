@@ -21,6 +21,25 @@
   (assert-typep 'vector (decode "[]"))
   (assert-equalp #(nil) (decode "[false]")))
 
+(define-test allow-json-comments ()
+  (assert-true (prog1 t (decode "// hello
+3")))
+  (assert-true (prog1 t (decode "{\"object\": //comment
+\"value\"}")))
+  (assert-true (prog1 t (decode "{\"object\" //comment
+:\"value\"}")))
+  (assert-true (prog1 t (decode "{//comment
+\"object\": \"value\"}")))
+  (assert-true (prog1 t (decode "[//comment
+1,2,3]")))
+  (assert-true (prog1 t (decode "[//comment
+1, // comment
+2,3]")))
+  (assert-true (prog1 t (decode "[//comment
+1,// comment
+2,3// comment
+]"))))
+
 (define-test from-file ()
   (destructuring-bind (simple-1 float-3.8 true false null
                        string-foo array-123 array-of-everything
