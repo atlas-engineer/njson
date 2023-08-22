@@ -30,7 +30,7 @@
 (define-public sbcl-njson
   (package
    (name "sbcl-njson")
-   (version "1.1.0")
+   (version "1.1.1")
    (source
     (local-file (dirname (current-filename)) #:recursive? #t)
     ;;;; Or this, in case of contributing to Guix.
@@ -71,16 +71,18 @@ Conveniences that NJSON provides are:
 @item @code{encode} and @code{decode} as single entry points for JSON reading
 and writing, be it from streams/string/files, or from those.
 
-@item @code{jget}, @code{jrem}, @code{jtruep}, and their aliases to
-access/delete the decoded objects' properties and check their truth value
-without the need to worry about the low-level details of how these values are
-decoded.
+@item @code{jget}, @code{jcopy}, @code{jkeys}, and their aliases to
+manipulate the decoded objects' properties without the need to worry
+about the low-level details of how these values are decoded.
 
 @item @code{jif}, @code{jwhen}, @code{jor}, @code{jand}, and other macros
 mimicking Lisp ones, while using truth values of JSON-decoded data.
 
+@item @code{jbind} and @code{jmatch} macros to destructure and
+validate parsed JSON.
+
 @item @code{njson/aliases} package to nickname to @code{j} for all the
-forms conveniently accessible as @code{j:rem}, @code{j:get},
+forms conveniently accessible as @code{j:get}, @code{j:copy},
 @code{j:if} etc.
 
 @end itemize\n")
