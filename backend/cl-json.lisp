@@ -35,14 +35,18 @@ and the token itself, as a string or character."
        (json::read-json-number-token stream))
       ;; Modified to ignore comments.
       ((#\/)
-       (read-line stream)
-       (json::read-json-token stream))
+       (loop for char = (peek-char nil stream nil nil)
+             until (or (null char)
+                       (char= char #\Newline))
+             do (read-char stream)
+             finally (return (when char
+                               (json::read-json-token stream)))))
       (t (if (alpha-char-p c)
              (json::read-json-name-token stream)
              (json:json-syntax-error stream "Invalid char on JSON input: `~C'"
                                 c))))))
 
-(defun peek-json-token (stream)
+(defun json::peek-json-token (stream)
   "Return 2 values: the category and the first character of the next
 token available in the given STREAM.  Unlike READ-JSON-TOKEN, this
 function can not discriminate between integers and reals (hence, it
@@ -56,8 +60,12 @@ such tokens is :SYMBOL)."
        ((#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\-) :number)
        ;; Modified to ignore comments.
        ((#\/)
-        (read-line stream)
-        (json::peek-json-token stream))
+        (loop for char = (peek-char nil stream nil nil)
+              until (or (null char)
+                        (char= char #\Newline))
+              do (read-char stream)
+              finally (return (when char
+                                (json::peek-json-token stream)))))
        (t (if (alpha-char-p c)
               :symbol
               (json::json-syntax-error stream "Invalid char on JSON input: `~C'"
