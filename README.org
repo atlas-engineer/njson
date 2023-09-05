@@ -251,7 +251,9 @@ See documentation for more examples.
 
 *** MACRO njson:jmatch (alias njson/aliases:match)
 
-Matches/destructures the provided form against patterns one by one, and executes the body of the successfully matching one with the bindings it established. Every pattern and body is essentially a ~jbind~ with checking for destructuring success. The use-case is dispatching over API responses that differ in structure. Telegram Bot API, for example, has disjoint contents for error responses and success responses:
+Matches/destructures the provided form against patterns one by one, and executes the body of the successfully matching one with the bindings it established. Every pattern and body is essentially a ~jbind~ with checking for destructuring success. The use-case is dispatching over API responses that differ in structure.
+
+Telegram Bot API, for example, has disjoint contents for error responses and success responses:
 - Error responses have "ok" key set to false, and keys called "description" and "error_code".
 - Successful responses have "ok" set to true and "result" as the payload they return.
 
