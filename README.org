@@ -277,3 +277,4 @@ After parsing the data, we have clear value distinctions:
 
 * Roadmap
 - [ ] Make an in-depth guide on supporting other backends.
+- [ ] Support JSON Schemas?
