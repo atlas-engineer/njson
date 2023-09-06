@@ -104,6 +104,7 @@ KEY-OR-INDEX can be
 - a sequence of integers and strings (to index the nested structures).
 - an empty sequence/pathname (to match the whole object).
 
+- Throws `no-key' when the key is not present in the object.
 - Throws `invalid-key' if using the wrong index type.
 - Throws `non-indexable' when trying to index something other than
   JSON arrays or objects.
