@@ -55,12 +55,14 @@ CHAR is left unread on STREAM after returning."
     (cond
       ((<= 0 index (1- (length object)))
        (values (aref object index) t))
-      (t (values nil nil))))
+      (t (cerror "Return nothing"
+                 'no-key :object object :key index))))
   (:method ((key string) (object hash-table))
     (cond
       ((nth-value 1 (gethash key object))
        (gethash key object))
-      (t (values nil nil))))
+      (t (cerror "Return nothing"
+                 'no-key :object object :key key))))
   (:method ((pointer pathname) object)
     (if (equal #p"" pointer)
         (values object t)

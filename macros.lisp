@@ -31,14 +31,7 @@ If TEST is `jtruep' evaluate BODY."
   (restart-case
       (let ((result (jget indices object)))
         (or (typecase expected
-              ((eql t)
-               (multiple-value-bind (value value-p)
-                   (jget indices object)
-                 (if value-p
-                     value
-                     (cerror
-                      "Return nothing"
-                      'invalid-key :key indices :object object))))
+              ((eql t) (jget indices object))
               ((eql :true) (eq t result))
               ((eql :false) (eq nil result))
               ((and array (not string))
@@ -164,9 +157,14 @@ See more examples in njson tests."
                                     append (destructuring-bind (var &optional (var-p nil var-p-provided))
                                                binding
                                              (append
-                                              `((,var (jget (vector ,@key) ,form-sym)))
+                                              `((,var (ignore-errors (jget (vector ,@key) ,form-sym))))
                                               (when var-p-provided
-                                                `((,var-p (nth-value 1 (jget (vector ,@key) ,form-sym)))))))
+                                                `((,var-p (handler-case
+                                                              (prog1
+                                                                  t
+                                                                (jget (vector ,@key) ,form-sym))
+                                                            (no-key ()
+                                                              nil)))))))
                              else
                                collect `(,binding (check-value t (vector ,@key) ,form-sym)))))
         `(let* ((,form-sym ,form)

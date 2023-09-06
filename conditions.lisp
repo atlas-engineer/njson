@@ -102,6 +102,16 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Pointer ~S is invalid."
                      (pointer condition)))))
 
+(define-condition no-key (error)
+  ((object :initarg :object
+           :accessor object)
+   (key :initarg :key
+        :accessor key))
+  (:documentation "Condition thrown when trying to index an object/array with a key not present in it.")
+  (:report (lambda (condition stream)
+             (format stream "There's no ~s key in ~a."
+                     (key condition) (json-short-print (object condition))))))
+
 (define-condition value-mismatch (error)
   ((expected :initarg :expected
              :accessor expected)

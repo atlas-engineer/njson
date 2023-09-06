@@ -164,6 +164,11 @@
                  `(assert-error
                    'value-mismatch
                    (njson:jbind ,path
+                       baker)))
+               (assert-no-key (path)
+                 `(assert-error
+                   'no-key
+                   (njson:jbind ,path
                        baker))))
       (assert-bind #())
       (assert-bind #(()))
@@ -227,5 +232,9 @@
       ;; Test lenient var-p bindings
       (assert-bind #(("data" ("modhash" (modhash modhash-p)))))
       (assert-bind #(("data" ("modfoo" (modfoo modfoo-p)))))
-      (assert-bind #(("data" ("modfoo" (modfoo))))))))
+      (assert-bind #(("data" ("modfoo" (modfoo)))))
+      ;; Test wrong keys.
+      (assert-no-key #(() () 8))
+      (assert-no-key #(("data" ("parents" _))))
+      (assert-no-key #(("data" ("parents" ("nested" :true))))))))
 
