@@ -3,6 +3,10 @@
 
 (in-package #:njson)
 
+(define-condition jerror (error)
+  ()
+  (:documentation "Fundamental error class all the NJSON errors inherit from."))
+
 (defun read-new-value ()
   (format *query-io* "Input the new value (evaluated)~%")
   (list (eval (uiop:safe-read-from-string (read-line *query-io* nil nil)))))
@@ -15,7 +19,7 @@
   (format *query-io* "Input the new JSON Pointer~%")
   (list (pathname (read-line *query-io* nil nil))))
 
-(define-condition decode-from-stream-not-implemented (error) ()
+(define-condition decode-from-stream-not-implemented (jerror) ()
   (:documentation "Incomplete decoding implementation error.")
   (:report "DECODE-FROM-STREAM is not specialized.
 You need to specialize it to use NJSON. Example:
@@ -25,7 +29,7 @@ You need to specialize it to use NJSON. Example:
 
 Alternatively, load a system with this method already defined, like :njson/cl-json."))
 
-(define-condition encode-to-stream-not-implemented (error) ()
+(define-condition encode-to-stream-not-implemented (jerror) ()
   (:documentation "Incomplete encoding implementation error.")
   (:report "ENCODE-TO-STREAM is not specialized.
 You need to specialize it to use NJSON. Example:
@@ -66,7 +70,7 @@ special treatment."
          (princ "]"))
         (t (princ (encode object)))))))
 
-(define-condition invalid-key (error)
+(define-condition invalid-key (jerror)
   ((object :initarg :object
            :accessor object)
    (key :initarg :key
@@ -86,7 +90,7 @@ Are you sure you're indexing the right thing?~]"
     (sequence 1)
     (t 2)))
 
-(define-condition non-indexable (error)
+(define-condition non-indexable (jerror)
   ((value :initarg :value
           :accessor value))
   (:documentation "The condition thrown on trying to index non-object/array.")
@@ -94,7 +98,7 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Non-indexable ~a."
                      (json-short-print (value condition))))))
 
-(define-condition invalid-pointer (error)
+(define-condition invalid-pointer (jerror)
   ((pointer :initarg :pointer
             :accessor pointer))
   (:documentation "Condition thrown when trying to index an object with invalid pointer.")
@@ -102,7 +106,7 @@ Are you sure you're indexing the right thing?~]"
              (format stream "Pointer ~S is invalid."
                      (pointer condition)))))
 
-(define-condition no-key (error)
+(define-condition no-key (jerror)
   ((object :initarg :object
            :accessor object)
    (key :initarg :key
@@ -112,7 +116,7 @@ Are you sure you're indexing the right thing?~]"
              (format stream "There's no ~s key in ~a."
                      (key condition) (json-short-print (object condition))))))
 
-(define-condition value-mismatch (error)
+(define-condition value-mismatch (jerror)
   ((expected :initarg :expected
              :accessor expected)
    (actual :initarg :actual
