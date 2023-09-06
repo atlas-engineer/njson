@@ -49,6 +49,7 @@ If TEST is `jtruep' evaluate BODY."
              :expected (typecase expected
                          ((eql :true) t)
                          ((eql :false) nil)
+                         (null (make-hash-table))
                          (t expected))
              :actual result
              :object (jget (subseq indices 0
