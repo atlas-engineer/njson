@@ -43,7 +43,6 @@ CHAR is left unread on STREAM after returning."
           :interactive read-new-pointer
           (parse-pointer-pathname new-pointer))))))
 
-
 (defgeneric jget (key-or-index object)
   (:method ((keys sequence) (object t))
     (case (length keys)
