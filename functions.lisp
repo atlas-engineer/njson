@@ -54,14 +54,27 @@ CHAR is left unread on STREAM after returning."
     (cond
       ((<= 0 index (1- (length object)))
        (values (aref object index) t))
-      (t (cerror "Return nothing"
-                 'no-key :object object :key index))))
+      (t (restart-case
+             (cerror "Return nothing"
+                     'no-key :object object :key index)
+           (store-value (new-value)
+             :report "Add a value under this key"
+             :interactive read-new-value
+             (adjust-array object index)
+             (setf (elt object index) new-value)
+             (values new-value t))))))
   (:method ((key string) (object hash-table))
     (cond
       ((nth-value 1 (gethash key object))
        (gethash key object))
-      (t (cerror "Return nothing"
-                 'no-key :object object :key key))))
+      (t (restart-case
+             (cerror "Return nothing"
+                     'no-key :object object :key key)
+           (store-value (new-value)
+             :report "Add a new value under this key"
+             :interactive read-new-value
+             (setf (gethash key object) new-value)
+             (values new-value t))))))
   (:method ((pointer pathname) object)
     (if (equal #p"" pointer)
         (values object t)
