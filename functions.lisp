@@ -268,7 +268,7 @@ behavior is confusing)."))
                     :fill-pointer t
                     :initial-contents (loop for key in (jkeys object)
                                             collect (jget key object)))
-        (make-array 1 :initial-contents (list object))))
+        (make-singular-array object)))
   (:method ((object sequence) &key &allow-other-keys)
     (make-array (length object) :adjustable t :fill-pointer t :initial-contents object))
   (:method ((object string) &key &allow-other-keys)
