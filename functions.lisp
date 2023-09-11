@@ -116,18 +116,21 @@ KEY-OR-INDEX can be
 - a sequence of integers and strings (to index the nested structures).
 - an empty sequence/pathname (to match the whole object).
 
-- Throws `no-key' when the key is not present in the object.
-- Throws `invalid-key' if using the wrong index type.
-- Throws `non-indexable' when trying to index something other than
+Return two values: the value under KEY-OR-INDEX and whether this value
+was found.
+
+- (Starting from version 2) Throw `no-key' when the key is not present in the object.
+- Throw `invalid-key' if using the wrong index type.
+- Throw `non-indexable' when trying to index something other than
   JSON arrays or objects.
-- Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+- Throw `invalid-pointer' when using JSON Pointer with invalid syntax
   as key.
 
 For example, to get the data from a structure like
 {\"data\": [1, 2, {\"three\": 3}]}
 you can use
 (jget #(\"data\" 2 \"three\") data)
-;; => 3
+;; => 3, T
 
 OBJECT can be JSON array or object, which in Lisp translates to
 `array' or `hash-table'."))
@@ -189,10 +192,10 @@ an empty pathname/sequence (because setting the object itself to a new
 value is not possible in CL, unless it's a place, which is not
 guaranteed for `jget' arguments).
 
-- Throws `invalid-key' if using the wrong index type.
-- Throws `non-indexable' when trying to index something other than
+- Throw `invalid-key' if using the wrong index type.
+- Throw `non-indexable' when trying to index something other than
   JSON arrays or objects.
-- Throws `invalid-pointer' when using JSON Pointer with invalid syntax
+- Throw `invalid-pointer' when using JSON Pointer with invalid syntax
   as key.
 
 OBJECT can be JSON array or object, which in Lisp translates to
