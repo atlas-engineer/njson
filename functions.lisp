@@ -43,7 +43,7 @@ CHAR is left unread on STREAM after returning."
           :interactive read-new-pointer
           (parse-pointer-pathname new-pointer))))))
 
-(defgeneric jget (key-or-index object)
+(defgeneric jget* (key-or-index object)
   (:method ((keys sequence) (object t))
     (case (length keys)
       (0 (values object t))
@@ -106,7 +106,21 @@ CHAR is left unread on STREAM after returning."
     (declare (ignore key))
     (cerror "Return nothing"
             'non-indexable :value object)
-    (values nil nil))
+    (values nil nil)))
+
+(defgeneric jget (key-or-index object)
+  (:method (key-or-index object)
+    (jget* key-or-index object))
+  (:method ((index integer) (object array))
+    (handler-case
+        (jget* index object)
+      (no-key ()
+        (values nil nil))))
+  (:method ((key string) (object hash-table))
+    (handler-case
+        (jget* key object)
+      (no-key ()
+        (values nil nil))))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
 
 KEY-OR-INDEX can be
@@ -133,7 +147,11 @@ you can use
 ;; => 3, T
 
 OBJECT can be JSON array or object, which in Lisp translates to
-`array' or `hash-table'."))
+`array' or `hash-table'.
+
+`jget*' is a more structured and strict version of `jget', enforcing
+the `no-key' condition and removing the two-valued approach because of
+that. `jget*' will be merged into `jget' in version 2."))
 
 (defgeneric (setf jget) (value key-or-index object)
   (:method (value (keys sequence) (object t))

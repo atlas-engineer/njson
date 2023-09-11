@@ -5,7 +5,7 @@
   (:use #:common-lisp)
   (:export
    #:decode #:encode
-   #:get #:copy #:true #:truep #:true?
+   #:get #:get* #:copy #:true #:truep #:true?
    #:keys #:ensure-array #:ensure-object
    #:if #:when #:or #:and #:not
    #:bind #:match
@@ -19,6 +19,7 @@ Perfect with j: package-local-nickname, disastrous when :use-d."))
 (loop for (alias original) in '((njson/aliases:decode njson:decode)
                                 (njson/aliases:encode njson:encode)
                                 (njson/aliases:get njson:jget)
+                                (njson/aliases:get* njson:jget*)
                                 ((setf njson/aliases:get) (setf njson:jget))
                                 (njson/aliases:copy njson:jcopy)
                                 (njson/aliases:true njson:jtruep)

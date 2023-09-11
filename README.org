@@ -113,12 +113,14 @@ can
   (j:decode ...)
 #+end_src
 
+See the next section for the functions/macros NJSON exports.
 
-The helpers are:
+* API
+** FUNCTION njson:jget (alias: njson/aliases:get)
 
-*** FUNCTION njson:jget (alias: njson/aliases:get)
-
-Gets the value from the JSON object/array indexed by a certain key. Note that the second value is a boolean denoting whether the entry under key is found (like in ~gethash~).
+Gets the value from the JSON object/array indexed by a certain
+key. Note that the second value is a boolean denoting whether the
+entry under key is found (like in ~gethash~).
 
 #+begin_src lisp
   (defvar data (njson:decode "{\"key\": 5, \"second-key\": [1, 2, false]}"))
@@ -142,7 +144,11 @@ Gets the value from the JSON object/array indexed by a certain key. Note that th
 
 Note the pathname indexing—it uses the [[https://www.rfc-editor.org/rfc/rfc6901][JSON Pointer]] syntax for indexing convenience.
 
-*** FUNCTION njson:jcopy (alias: njson/aliases:copy)
+** FUNCTION njson:jget* (alias: njson/aliases:get*)
+
+A stricter version of =jget= that throws =no-key= error when there's nothing under the given key in the provided object.
+
+** FUNCTION njson:jcopy (alias: njson/aliases:copy)
 
 Copies the whole thing it's passed, no mater the nesting, into a fresh new equal object. Makes all the arrays adjustable and fillable for further possibly destructive use.
 
@@ -153,7 +159,7 @@ Copies the whole thing it's passed, no mater the nesting, into a fresh new equal
   ;; => 5, T
 #+end_src
 
-*** FUNCTION njson:jkeys (alias: njson/aliases:keys)
+** FUNCTION njson:jkeys (alias: njson/aliases:keys)
 
 Gets all the keys present in the passed object. Integer keys for arrays, string keys for object, error for anything else.
 #+begin_src lisp
@@ -163,7 +169,7 @@ Gets all the keys present in the passed object. Integer keys for arrays, string 
   ;; (0 1)
 #+end_src
 
-*** FUNCTIONS njson:ensure-array, njson:ensure-object (aliases: njson/aliases:ensure-array, njson/aliases:ensure-object)
+** FUNCTIONS njson:ensure-array, njson:ensure-object (aliases: njson/aliases:ensure-array, njson/aliases:ensure-object)
 
 Ensure that the passed object is turned into array or object (respectively). If ~:convert-objects~ is provided in ~njson:ensure-array~, it creates an array with all the values of object, discarding keys.
 #+begin_src lisp
@@ -184,13 +190,13 @@ Ensure that the passed object is turned into array or object (respectively). If 
   ;; #<hash-table> with "key": #(1 2 3)
 #+end_src
 
-*** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
+** FUNCTION njson:jtruep (aliases: njson:jtrue-p, njson:jtrue?, njson:truep, njson:true-p, njson:true?)
 
 Checks whether the given value is true (in other words, neither ~false~, nor ~null~) per JSON.
 
 All the macros below utilize it, so, if you want to change the behavior of those, specialize this function.
 
-*** MACRO njson:jwhen (alias: njson/aliases:when)
+** MACRO njson:jwhen (alias: njson/aliases:when)
 
 A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
 
@@ -203,7 +209,7 @@ A regular CL ~when~ made aware of JSON's ~null~ and ~false~.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:if (alias: njson/aliases:if)
+** MACRO njson:if (alias: njson/aliases:if)
 
 A regular Lisp ~if~ aware of JSON truths and lies.
 
@@ -214,11 +220,11 @@ A regular Lisp ~if~ aware of JSON truths and lies.
   ;; "This is always returned"
 #+end_src
 
-*** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson/aliases:or, njson/aliases:and, njson/aliases:not)
+** MACRO njson:jor, njson:jand, njson:jnot (and aliases: njson/aliases:or, njson/aliases:and, njson/aliases:not)
 
 Regular Lisp logic operators, with awareness of JSON values.
 
-*** MACRO njson:jbind (alias njson/aliases:bind)
+** MACRO njson:jbind (alias njson/aliases:bind)
 
 Destructures a JSON object against the provided destructuring pattern. This is most useful for deeply nested JSON structures often returned from old/corporate APIs. One example of such APIs is the Reddit one. To get to the title of the post, one has to go through half a dozen layers of nested objects and arrays:
 #+begin_src js
@@ -249,7 +255,7 @@ One needs a strong destructuring facility with type checking to move through thi
 
 See documentation for more examples.
 
-*** MACRO njson:jmatch (alias njson/aliases:match)
+** MACRO njson:jmatch (alias njson/aliases:match)
 
 Matches/destructures the provided form against patterns one by one, and executes the body of the successfully matching one with the bindings it established. Every pattern and body is essentially a ~jbind~ with checking for destructuring success. The use-case is dispatching over API responses that differ in structure.
 
@@ -274,6 +280,54 @@ After parsing the data, we have clear value distinctions:
 - And in the exceptional case of malformed data, error out.
 
 ~jmatch~ (and ~jbind~) also checks the value matching (see the ~"ok" :true~ and ~"ok" :false~ parts) with arbitrary JSON atomic type (number, string, ~:true~ (for T), ~:false~ (for NIL), ~:null~ and ~:undefined~). Arrays and lists are destructuring patterns already, so any value in them can be equality-checked.
+
+** ERROR njson:jerror
+
+An umbrella class for all the NJSON errors. If you want to play unsafe, simply ignore all of NJSON errors:
+#+begin_src lisp
+  (handler-case
+      (njson:jget ...)
+    ;; Or j:error if you nicknamed njson/aliases.
+    (njson:jerror ()
+      nil))
+#+end_src
+
+** ERROR njson:encode-to-stream-not-implemented, njson:decode-from-stream-not-implemented
+
+These get thrown when the JSON parsing back-end does not define methods for =njson:encode-to-stream= and =njson:decode-from-stream=. These are the bare minimum a backend should have to work. Adding the string and file methods is nice, but not required.
+
+** ERROR njson:invalid-key
+
+This gets thrown when you try to index objects with integer indices and arrays with string keys. Because such an indexing wouldn't make sense.
+
+To allow string indexing for arrays (to make ="1"= be recognized as a valid index), you can patch the =njson:jget= method for string indices:
+
+#+begin_src lisp
+  (defmethod njson:jget :around ((index string) (object array))
+    (if (every #'digit-char-p index)
+        (njson:jget (parse-integer index) object)
+        (call-next-method)))
+#+end_src
+
+** ERROR njson:non-indexable
+
+It doesn't make sense to index a number. This error reinforces the idea.
+
+** ERROR njson:invalid-pointer
+
+This error is JSON Pointer specific. It's thrown when there's something wrong with the pointer syntax.
+
+** ERROR njson:no-key
+
+This error is thrown in =njson:jget*= when the indexed object doesn't have the key it's indexed with.
+
+** ERROR njson:value-mismatch
+
+Some value validated in =njson:jbind= didn't match the expected value.
+
+** ERROR njson:deprecated
+
+Marks a certain function as deprecated.
 
 * Roadmap
 - [ ] Make an in-depth guide on supporting other backends.

@@ -233,8 +233,9 @@
       (assert-bind #(("data" ("modhash" (modhash modhash-p)))))
       (assert-bind #(("data" ("modfoo" (modfoo modfoo-p)))))
       (assert-bind #(("data" ("modfoo" (modfoo)))))
-      ;; Test wrong keys.
-      (assert-no-key #(() () 8))
-      (assert-no-key #(("data" ("parents" _))))
-      (assert-no-key #(("data" ("parents" ("nested" :true))))))))
+      ;; Uncomment on version 2 when jget* and jget merge into one.
+      ;; (assert-no-key #(() () 8))
+      ;; (assert-no-key #(("data" ("parents" _))))
+      ;; (assert-no-key #(("data" ("parents" ("nested" :true)))))
+      )))
 

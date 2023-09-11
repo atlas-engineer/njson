@@ -31,7 +31,7 @@ If TEST is `jtruep' evaluate BODY."
   (restart-case
       (let ((result (jget indices object)))
         (or (typecase expected
-              ((eql t) (jget indices object))
+              ((eql t) (jget* indices object))
               ((eql :true) (eq t result))
               ((eql :false) (eq nil result))
               ((and array (not string))
@@ -90,7 +90,8 @@ The pattern might be:
   with at least as many elements as provided in the vector. Match
   every form in the vector against the element with the same index.
 
-If the DESTRUCTURING-PATTERN doesn't match the object, throws `invalid-key'
+If the DESTRUCTURING-PATTERN doesn't match the object, throw
+`value-mismatch'.
 
 Underlying `jget' can throw errors for the exceptionally malformed
 inputs. See `jget' documentation for the types of errors it throws.
@@ -158,14 +159,9 @@ See more examples in njson tests."
                                     append (destructuring-bind (var &optional (var-p nil var-p-provided))
                                                binding
                                              (append
-                                              `((,var (ignore-errors (jget (vector ,@key) ,form-sym))))
+                                              `((,var (jget (vector ,@key) ,form-sym)))
                                               (when var-p-provided
-                                                `((,var-p (handler-case
-                                                              (prog1
-                                                                  t
-                                                                (jget (vector ,@key) ,form-sym))
-                                                            (no-key ()
-                                                              nil)))))))
+                                                `((,var-p (nth-value 1 (jget (vector ,@key) ,form-sym)))))))
                              else
                                collect `(,binding (check-value t (vector ,@key) ,form-sym)))))
         `(let* ((,form-sym ,form)
@@ -183,15 +179,15 @@ If PATTERN matches successfully in `jbind', then BODY is executed with
 the variables from the PATTERN bound to the respective values, as per
 `jbind'.
 
-The last clause could start with T, NIL, OTHERWISE, ELSE, or _, and it
-will be invoked if other patterns don't match. If there's no such
-clause, `jmatch' will simply return NIL on no matching patterns."
+The last clause could start with T, OTHERWISE, ELSE, or _, and it will
+be invoked if other patterns don't match. If there's no such clause,
+`jmatch' will simply return NIL on no matching patterns."
   (let ((form-sym (gensym "MATCH-FORM")))
     `(let ((,form-sym ,form))
        (cond
          ,@(loop for (pattern . body) in clauses
                  when (and (symbolp pattern)
-                           (member (symbol-name pattern) '("T" "_" "NIL" "OTHERWISE" "ELSE")
+                           (member (symbol-name pattern) '("T" "_" "OTHERWISE" "ELSE")
                                    :test #'string=))
                    collect `(t ,@body)
                  else

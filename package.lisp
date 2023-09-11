@@ -15,7 +15,7 @@
    #:decode-from-stream #:decode-from-string #:decode-from-file
    #:encode-to-stream #:encode-to-string #:encode-to-file
    ;; Helpers
-   #:jget #:jcopy #:jkeys
+   #:jget #:jget* #:jcopy #:jkeys
    #:jtruep #:jtrue-p #:jtrue?
    #:ensure-array #:ensure-object
    ;; Macro helpers
