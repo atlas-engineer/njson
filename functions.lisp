@@ -43,6 +43,7 @@ CHAR is left unread on STREAM after returning."
           :interactive read-new-pointer
           (parse-pointer-pathname new-pointer))))))
 
+;; TODO: Merge this into `jget' in 2.*.
 (defgeneric jget* (key-or-index object)
   (:method ((keys sequence) (object t))
     (case (length keys)
@@ -106,7 +107,8 @@ CHAR is left unread on STREAM after returning."
     (declare (ignore key))
     (cerror "Return nothing"
             'non-indexable :value object)
-    (values nil nil)))
+    (values nil nil))
+  (:documentation "A version of `jget' that's more strict regarding missing keys."))
 
 (defgeneric jget (key-or-index object)
   (:method (key-or-index object)
