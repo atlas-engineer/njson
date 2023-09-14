@@ -48,9 +48,9 @@ CHAR is left unread on STREAM after returning."
   (:method ((keys sequence) (object t))
     (case (length keys)
       (0 (values object t))
-      (1 (jget (elt keys 0) object))
-      (t (jget (subseq keys 1)
-               (jget (elt keys 0) object)))))
+      (1 (jget* (elt keys 0) object))
+      (t (jget* (subseq keys 1)
+                (jget* (elt keys 0) object)))))
   (:method ((index integer) (object array))
     (cond
       ((<= 0 index (1- (length object)))
@@ -79,7 +79,7 @@ CHAR is left unread on STREAM after returning."
   (:method ((pointer pathname) object)
     (if (equal #p"" pointer)
         (values object t)
-        (jget (parse-pointer-pathname pointer) object)))
+        (jget* (parse-pointer-pathname pointer) object)))
   (:method ((index string) (object array))
     (restart-case
         (cerror "Return nothing"
@@ -88,7 +88,7 @@ CHAR is left unread on STREAM after returning."
         :report "Use an integer key"
         :interactive read-new-key
         (check-type new-index integer)
-        (jget new-index object))))
+        (jget* new-index object))))
   (:method ((key integer) (object hash-table))
     (restart-case
         (cerror "Return nothing"
@@ -97,7 +97,7 @@ CHAR is left unread on STREAM after returning."
         :report "Use a string key"
         :interactive read-new-key
         (check-type new-key string)
-        (jget new-key object))))
+        (jget* new-key object))))
   (:method (key object)
     (declare (ignore key))
     (cerror "Return nothing"
