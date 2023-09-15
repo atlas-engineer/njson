@@ -32,7 +32,7 @@ If TEST is `jtruep' evaluate BODY."
       (let ((result (jget indices object)))
         (or (typecase expected
               ((eql t) (handler-case
-                           (return-from 'check-value (jget* indices object))
+                           (return-from check-value (jget* indices object))
                          (error () nil)))
               ((eql :true) (eq t result))
               ((eql :false) (eq nil result))
