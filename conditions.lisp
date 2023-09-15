@@ -113,8 +113,9 @@ Are you sure you're indexing the right thing?~]"
         :accessor key))
   (:documentation "Condition thrown when trying to index an object/array with a key not present in it.")
   (:report (lambda (condition stream)
-             (format stream "There's no ~s key in ~a."
-                     (key condition) (json-short-print (object condition))))))
+             (format stream "There's no ~[key~;index~] ~s in ~[object~;array~] ~a."
+                     (type-num (object condition)) (key condition)
+                     (type-num (object condition)) (json-short-print (object condition))))))
 
 (define-condition value-mismatch (jerror)
   ((expected :initarg :expected
