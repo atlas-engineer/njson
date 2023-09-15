@@ -124,15 +124,8 @@ CHAR is left unread on STREAM after returning."
 
 (defgeneric jget (key-or-index object)
   (:method (key-or-index object)
-    (jget* key-or-index object))
-  (:method ((index integer) (object array))
     (handler-case
-        (jget* index object)
-      (no-key ()
-        (values nil nil))))
-  (:method ((key string) (object hash-table))
-    (handler-case
-        (jget* key object)
+        (jget* key-or-index object)
       (no-key ()
         (values nil nil))))
   (:documentation "Get the value at KEY-OR-INDEX in OBJECT.
