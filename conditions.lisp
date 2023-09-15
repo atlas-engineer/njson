@@ -39,6 +39,7 @@ You need to specialize it to use NJSON. Example:
 
 Alternatively, load a system with this method already defined, like :njson/cl-json."))
 
+;; TODO: Generalize and export?
 (defun json-short-print (object)
   "Produce a string with a short object representation for debugging.
 
