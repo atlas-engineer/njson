@@ -84,6 +84,12 @@ CHAR is left unread on STREAM after returning."
     (restart-case
         (cerror "Return nothing"
                 'invalid-key :key index :object object)
+      (coerce-to-integer ()
+        :report "Convert the key to integer"
+        :test (lambda (c)
+                (declare (ignore c))
+                (every #'digit-char-p index))
+        (jget* (parse-integer index) object))
       (use-integer (new-index)
         :report "Use an integer key"
         :interactive read-new-key
@@ -93,6 +99,9 @@ CHAR is left unread on STREAM after returning."
     (restart-case
         (cerror "Return nothing"
                 'invalid-key :key key :object object)
+      (coerce-to-string ()
+        :report "Convert the index to string"
+        (jget* (princ-to-string key) object))
       (use-string (new-key)
         :report "Use a string key"
         :interactive read-new-key
