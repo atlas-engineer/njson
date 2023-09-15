@@ -112,11 +112,14 @@ CHAR is left unread on STREAM after returning."
     (cerror "Return nothing"
             'non-indexable :value object)
     (values nil nil))
-  (:method :around (key (object string))
+  (:method ((key string) (object string))
     (declare (ignore key))
     (cerror "Return nothing"
-            'non-indexable :value object)
-    (values nil nil))
+            'non-indexable :value object))
+  (:method ((key integer) (object string))
+    (declare (ignore key))
+    (cerror "Return nothing"
+            'non-indexable :value object))
   (:documentation "A version of `jget' that's more strict regarding missing keys."))
 
 (defgeneric jget (key-or-index object)
