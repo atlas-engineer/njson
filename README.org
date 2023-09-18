@@ -8,7 +8,7 @@ encode JSON data, in the minimum keystrokes/minutes possible.
 * Getting started
 Clone the Git repository:
 #+begin_src sh
-  git clone --recursive https://github.com/atlas-engineer/njson ~/common-lisp/
+  git clone --recursive https://github.com/atlas-engineer/njson ~/common-lisp/njson
 #+end_src
 
 Load NJSON (with a jzon backend) in the REPL:
