@@ -99,18 +99,21 @@ more valuable.
 NJSON has strict requirements on the returned data, but this
 strictness enables a rich set of JSON-handling primitives/helpers. You
 can
-- safely ~:use #:njson~ in your packages if you want short and convenient JSON
-  operations there;
+- ~(:use #:cl #:njson)~ in your packages if you want short and
+  convenient JSON operations there. It's safe, because NJSON shadows
+  no symbols from CL.
 
-- or you can define a package local nickname for ~:njson/aliases~ to be
-  a mere ~j:~ (using ~trivial-package-local-nicknames~), so that even
-  shorter helpers (just a couple of characters longer than the regular
-  CL constructs) are available:
+- Or you can define a package local nickname for ~:njson/aliases~ to
+  be a mere ~j:~ (using ~trivial-package-local-nicknames~), so that
+  even shorter helpers (just a couple of characters longer than the
+  regular CL constructs) are available:
 #+begin_src lisp
   (trivial-package-local-nicknames:add-package-local-nickname :j :njson/aliases :YOUR-PACKAGE)
   ;; And then use it like.
   (j:get ...)
   (j:decode ...)
+  (j:if ...)
+  (j:match ...)
 #+end_src
 
 See the next section for the functions/macros NJSON exports.
@@ -147,6 +150,8 @@ Note the pathname indexing—it uses the [[https://www.rfc-editor.org/rfc/rfc690
 ** FUNCTION njson:jget* (alias: njson/aliases:get*)
 
 A stricter version of =jget= that throws =no-key= error when there's nothing under the given key in the provided object.
+
+Will be merged into =jget= with the next major release.
 
 ** FUNCTION njson:jcopy (alias: njson/aliases:copy)
 
