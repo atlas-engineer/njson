@@ -84,7 +84,6 @@ that your own methods extending NJSON should expect/return) are:
 - Lisp strings for JSON strings.
 - ~:null~ for JSON ~null~.
 - ~t~ for ~true~ and ~nil~ for ~false~.
-- ~:undefined~ for ~undefined~.
 - Vectors for JSON arrays.
 - Hash-tables for JSON objects.
 
@@ -284,7 +283,7 @@ After parsing the data, we have clear value distinctions:
 - On error, return (VALUES NULL &OPTIONAL STRING).
 - And in the exceptional case of malformed data, error out.
 
-~jmatch~ (and ~jbind~) also checks the value matching (see the ~"ok" :true~ and ~"ok" :false~ parts) with arbitrary JSON atomic type (number, string, ~:true~ (for T), ~:false~ (for NIL), ~:null~ and ~:undefined~). Arrays and lists are destructuring patterns already, so any value in them can be equality-checked.
+~jmatch~ (and ~jbind~) also checks the value matching (see the ~"ok" :true~ and ~"ok" :false~ parts) with arbitrary JSON atomic type (number, string, ~:true~ (for T), ~:false~ (for NIL), and ~:null~). Arrays and lists are destructuring patterns already, so any value in them can be equality-checked.
 
 ** ERROR njson:jerror
 
