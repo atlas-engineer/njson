@@ -76,8 +76,7 @@ such tokens is :SYMBOL)."
   `(let ((json::+json-lisp-symbol-tokens+
            '(("true" . t)
              ("false" . nil)
-             ("null" . :null)
-             ("undefined" . :undefined)))
+             ("null" . :null)))
          (json:*object-scope-variables* '(json:*internal-decoder* *json-object-accumulator* *json-last-object-key*))
          (json:*beginning-of-object-handler* #'json-object-init)
          (json:*object-key-handler* #'json-object-add-key)

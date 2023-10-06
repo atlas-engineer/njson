@@ -120,7 +120,7 @@ See more examples in njson tests."
         (bindings (list)))
     (labels ((parse-pattern (pattern &optional (current-path (list)))
                (etypecase pattern
-                 ((or (member :true :false :null :undefined) string real)
+                 ((or (member :true :false :null) string real)
                   (push (cons pattern (copy-list current-path))
                         bindings))
                  ((cons symbol *)
@@ -152,7 +152,7 @@ See more examples in njson tests."
                                                         (cons symbol (or (cons symbol null)
                                                                          null))))
                              if (typep binding '(or array real null
-                                                 (member :true :false :null :undefined)))
+                                                 (member :true :false :null)))
                                collect `(,(gensym) (check-value ,binding (vector ,@key) ,form-sym))
                              else if (and (symbolp binding)
                                           (uiop:emptyp key))

@@ -39,7 +39,6 @@ FROM can be a string, stream, pathname, or byte array.
 Distinguishes between null/false and arrays/objects.
 Decodes:
 - null as :NULL,
-- undefined as :UNDEFINED,
 - false as nil,
 - true as t,
 - arrays as vectors,
@@ -88,5 +87,4 @@ TO can be:
 Distinguishes between null and false.
 Encodes:
 - :NULL as null,
-- :UNDEFINED as undefined,
 - nil as false."))

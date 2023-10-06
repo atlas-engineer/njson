@@ -229,7 +229,6 @@ OBJECT can be JSON array or object, which in Lisp translates to
 (defgeneric jcopy (object)
   (:method ((object real)) object)
   (:method ((object (eql :null))) object)
-  (:method ((object (eql :undefined))) object)
   (:method ((object (eql t))) object)
   (:method ((object null)) object)
   (:method ((object string)) object)
@@ -268,12 +267,12 @@ If the OBJECT is not a JSON array/object, throws `non-indexable'."))
     (declare (ignore object))
     t)
   (:method ((object symbol))
-    (not (member object (list nil :null :undefined))))
+    (not (member object (list nil :null))))
   (:documentation "Test OBJECT for truthiness in JSON terms.
 
-Recognize all the values true, except for null, undefined, and
-false. This is to make the transition from JSON to Lisp (3+ false
-values -> 1 false value) smoother.
+Recognize all the values true, except for null and false. This is to
+make the transition from JSON to Lisp (2 false values -> 1 false
+value) smoother.
 
 Unlike JavaScript, empty strings and zero are not false (because this
 behavior is confusing)."))
