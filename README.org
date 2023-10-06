@@ -80,7 +80,7 @@ Plug-n-play usability and type variety are much higher of a priority
 than the performance. The types NJSON returns from its methods (and
 that your own methods extending NJSON should expect/return) are:
 
-- Lisp ~number~-s for JSON numbers.
+- Lisp ~real~-s for JSON numbers.
 - Lisp strings for JSON strings.
 - ~:null~ for JSON ~null~.
 - ~t~ for ~true~ and ~nil~ for ~false~.
