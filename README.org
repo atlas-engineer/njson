@@ -2,8 +2,9 @@
 
 *A JSON handling framework aiming for convenience and brevity.*
 
-NJSON aims to make it extremely convenient for you to decode and
-encode JSON data, in the minimum keystrokes/minutes possible.
+NJSON aims to make it extremely convenient for you to decode,
+validate, destructure, process, and encode JSON data, in the minimum
+keystrokes/minutes possible.
 
 * Getting started
 Clone the Git repository:
