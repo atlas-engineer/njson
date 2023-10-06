@@ -333,7 +333,3 @@ Some value validated in =njson:jbind= didn't match the expected value.
 ** ERROR njson:deprecated
 
 Marks a certain function as deprecated.
-
-* Roadmap
-- [ ] Make an in-depth guide on supporting other backends.
-- [ ] Support JSON Schemas?
