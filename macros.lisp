@@ -137,11 +137,12 @@ See more examples in njson tests."
                                   pattern)
                               (copy-list current-path))
                         bindings))
-                 (array (loop for elem across pattern
-                              for index from 0
-                              do (parse-pattern elem (append current-path (list index))))
-                        (push (cons #() (copy-list current-path))
-                              bindings)))))
+                 (array
+		  (loop for elem across pattern
+                        for index from 0
+                        do (parse-pattern elem (append current-path (list index))))
+		  (push (cons #() (copy-list current-path))
+			bindings)))))
       (check-type destructuring-pattern (or list (and array (not string))
                                             (and symbol (not keyword)))
                   "proper jbind destructuring pattern: list, array, or symbol")
