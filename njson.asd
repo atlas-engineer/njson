@@ -15,37 +15,27 @@
                (:file "njson")
                (:file "functions")
                (:file "macros")
-               (:file "aliases")))
-
-(defsystem "njson/submodules"
-  :defsystem-depends-on ("nasdf")
-  :class :nasdf-submodule-system)
+               (:file "aliases"))
+  :in-order-to ((test-op (test-op "njson/tests"))))
 
 (defsystem "njson/cl-json"
   :depends-on ("njson" "cl-json")
   :components ((:file "backend/cl-json"))
-  :in-order-to ((test-op (test-op "njson/tests")
-                         (test-op "njson/tests/compilation"))))
+  :in-order-to ((test-op (test-op "njson/tests"))))
 
 (defsystem "njson/jzon"
   :depends-on ("njson" "com.inuoe.jzon")
   :components ((:file "backend/jzon"))
-  :in-order-to ((test-op (test-op "njson/tests")
-                         (test-op "njson/tests/compilation"))))
+  :in-order-to ((test-op (test-op "njson/tests"))))
 
 (defsystem "njson/tests"
-  :description "Backend conformance test set. Don't use on its own!"
-  :defsystem-depends-on ("nasdf")
-  :class :nasdf-test-system
-  :depends-on ("njson")
-  :targets (:package :njson/tests)
+  :depends-on ("njson" "lisp-unit2")
   :serial t
   :pathname "tests/"
   :components ((:file "package")
-               (:file "tests")))
-
-(defsystem "njson/tests/compilation"
-  :defsystem-depends-on ("nasdf")
-  :class :nasdf-compilation-test-system
-  :depends-on ("njson")
-  :packages (:njson))
+               (:file "tests"))
+  :perform (test-op (op c)
+                    (eval-input
+                     "(lisp-unit2:run-tests
+                       :package :njson/tests
+                       :run-contexts #'lisp-unit2:with-summary-context)")))
