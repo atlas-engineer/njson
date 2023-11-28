@@ -325,4 +325,3 @@ If OBJECT is an object already, return it, checking KEY presence.
 If it's anything else, wrap it into an object with OBJECT under KEY.
 
 Throws errors from underlying `jget'."))
-
