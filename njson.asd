@@ -1,5 +1,5 @@
 ;;;; SPDX-FileCopyrightText: Atlas Engineer LLC
-;;;; SPDX-License-Identifier: BSD-3 Clause
+;;;; SPDX-License-Identifier: BSD-3-Clause
 
 (defsystem "njson"
   :description "NJSON is a JSON handling framework with the focus on convenience and brevity."
