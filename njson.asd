@@ -8,7 +8,7 @@
   :bug-tracker "https://github.com/atlas-engineer/njson/issues"
   :source-control (:git "https://github.com/atlas-engineer/njson.git")
   :license  "BSD-3 Clause"
-  :version "1.2.1"
+  :version "1.2.2"
   :serial t
   :components ((:file "package")
                (:file "conditions")
