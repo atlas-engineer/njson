@@ -29,6 +29,7 @@
   :in-order-to ((test-op (test-op "njson/tests"))))
 
 (defsystem "njson/tests"
+  :description "Backend conformance test set. Don't use on its own!"
   :depends-on ("njson" "lisp-unit2")
   :serial t
   :pathname "tests/"
