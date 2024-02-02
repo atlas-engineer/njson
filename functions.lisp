@@ -141,6 +141,13 @@ KEY-OR-INDEX can be
 - a sequence of integers and strings (to index the nested structures).
 - an empty sequence/pathname (to match the whole object).
 
+OBJECT can be
+- A hash table, indexed by strings
+- An array, indexed by integers
+- A stream, which is `decode'd and then indexed
+- A pathname, which is `decode'd and then indexed
+- Anything else, considered an error (see below)
+
 Return two values: the value under KEY-OR-INDEX and whether this value
 was found.
 
