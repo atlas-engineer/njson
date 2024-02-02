@@ -138,6 +138,10 @@ entry under key is found (like in ~gethash~).
   (njson:jget #p"/second-key/0" data)
   ;; => 1, T
 
+  ;; Can decode and index files as an alias for `njson:decode'.
+  (njson:jget #(0 "kind") #p"tests/baker.json")
+  ;; "Listing"
+
   ;; Modify the element in place:
   (setf (njson:jget #p"/second-key/0" data) 3)
   ;; Another indexing syntax, for no particular reason:

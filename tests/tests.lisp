@@ -235,3 +235,15 @@
       ;; (assert-no-key #(("data" ("parents" _))))
       ;; (assert-no-key #(("data" ("parents" ("nested" :true)))))
       )))
+
+(define-test inline-decode-file/stream ()
+  (let* ((baker-file (asdf:system-relative-pathname :njson "tests/baker.json"))
+         (baker-stream (open baker-file))
+         (baker-decoded (decode baker-file)))
+    (assert-equal "Henry Baker: Meta-circular semantics for Common Lisp special forms"
+                  (jget #(0 "data" "children" 0 "data" "title") baker-decoded))
+    (assert-equal "Henry Baker: Meta-circular semantics for Common Lisp special forms"
+                  (jget #(0 "data" "children" 0 "data" "title") baker-file))
+    (assert-equal "Henry Baker: Meta-circular semantics for Common Lisp special forms"
+                  (jget #(0 "data" "children" 0 "data" "title") baker-stream))
+    (close baker-stream)))
