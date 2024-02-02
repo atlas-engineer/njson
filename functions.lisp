@@ -112,6 +112,10 @@ CHAR is left unread on STREAM after returning."
     (cerror "Return nothing"
             'non-indexable :value object)
     (values nil nil))
+  (:method (key (object pathname))
+    (jget* key (decode-from-file object)))
+  (:method (key (object stream))
+    (jget* key (decode-from-stream object)))
   (:method ((key string) (object string))
     (declare (ignore key))
     (cerror "Return nothing"
